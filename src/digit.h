@@ -14,15 +14,112 @@ typedef struct {
 } TetriminoPos;
   
 typedef struct {
+    int size;
     TetriminoPos tetriminos[DIGIT_MAX_TETRIMINOS];
 } DigitDef;
 
+typedef char RawDigit[DIGIT_HEIGHT][DIGIT_WIDTH];
+
 static DigitDef s_digits[10];
+
+static void log_raw_digit(uint8_t log_level, RawDigit* raw) {
+    for (int i = 0; i < DIGIT_HEIGHT; ++i) {
+        APP_LOG(log_level, "Row %2d: '%.*s'", i, DIGIT_WIDTH, (*raw)[i]);
+    }
+}
+
+static void reorder_digit(DigitDef* dst, const DigitDef* src) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reordering digit with %d tetriminos", src->size);
+    dst->size = 0;
+    
+    RawDigit buffer;
+    memset(&buffer, ' ', sizeof(buffer));  
+
+    char tetriminos_processed[DIGIT_MAX_TETRIMINOS];
+    memset(&tetriminos_processed, 0, sizeof(tetriminos_processed));
+
+    // fill raw buffer
+    for (int t = 0; t < src->size; ++t) {
+        const TetriminoDef* td = get_tetrimino_def(src->tetriminos[t].letter);
+        const TetriminoMask* tm = &td->rotations[src->tetriminos[t].rotation];
+        for (int mask_y = 0; mask_y < td->size; ++mask_y) {
+            for (int mask_x = 0; mask_x < td->size; ++mask_x) {
+                if ((*tm)[mask_y][mask_x]) {
+                    const int x = mask_x + src->tetriminos[t].x;
+                    const int y = mask_y + src->tetriminos[t].y;
+                    buffer[y][x] = '0' + t;
+                }
+            }
+        }
+    }
+    
+    // erase raw buffer
+    while (dst->size < src->size) {
+        int tetrimino_fits = 0;
+        //APP_LOG(APP_LOG_LEVEL_INFO, "Fitting dest tetrimino %d / %d", dst->size, src->size);
+        
+        const int offset = rand() % src->size;
+        for (int i = 0; i < src->size; ++i) {
+            const int t = (i + offset) % src->size;
+            
+            if (tetriminos_processed[t]) {
+                //APP_LOG(APP_LOG_LEVEL_INFO, "Skipping source tetrimino %d", t);
+                continue;
+            }
+
+            const TetriminoDef* td = get_tetrimino_def(src->tetriminos[t].letter);
+            const TetriminoMask* tm = &td->rotations[src->tetriminos[t].rotation];
+
+            //APP_LOG(APP_LOG_LEVEL_INFO, "Trying to fit source tetrimino %d", t);
+            
+            tetrimino_fits = 1;
+            for (int mask_y = 0; mask_y < td->size;  ++mask_y) {
+                for (int mask_x = 0; mask_x < td->size; ++mask_x) {
+                    if ((*tm)[mask_y][mask_x]) {
+                        if (((mask_y + 1) >= td->size) || !(*tm)[mask_y+1][mask_x]) {
+                            const int x = src->tetriminos[t].x + mask_x;
+                            const int y = src->tetriminos[t].y + mask_y + 1;
+                            if (y < DIGIT_HEIGHT && buffer[y][x] != ' ') {
+                                //APP_LOG(APP_LOG_LEVEL_INFO, "Source tetrimino %d failed test at %d:%d", t, x, y);
+                                tetrimino_fits = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!tetrimino_fits) {
+                    break;
+                }
+            }
+
+            if (tetrimino_fits) {
+                //APP_LOG(APP_LOG_LEVEL_INFO, "Source tetrimino fit %d", t);
+                dst->tetriminos[dst->size] = src->tetriminos[t];
+                dst->size += 1;
+                tetriminos_processed[t] = 1;
+                for (int mask_y = 0; mask_y < td->size; ++mask_y) {
+                    for (int mask_x = 0; mask_x < td->size; ++mask_x) {
+                        if ((*tm)[mask_y][mask_x]) {
+                            const int x = mask_x + src->tetriminos[t].x;
+                            const int y = mask_y + src->tetriminos[t].y;
+                            buffer[y][x] = ' ';
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!tetrimino_fits) {
+            APP_LOG(APP_LOG_LEVEL_ERROR, "Can't reorder digit tetriminos, got %d out of %d:", dst->size, src->size);
+            log_raw_digit(APP_LOG_LEVEL_ERROR, &buffer);
+            return;
+        }
+    }
+}
 
 #if USE_RAW_DIGITS == 1
   
-typedef char RawDigit[DIGIT_HEIGHT][DIGIT_WIDTH];
-
 static RawDigit s_raw_digits[10] = {
     {"tzzjjj",
      "ttzzsj",
@@ -135,21 +232,9 @@ static RawDigit s_raw_digits[10] = {
      "itssjj"},
 };
 
-static int tetrimino_pos_comparator(const void* v1, const void* v2) {
-    const TetriminoPos* p1 = (const TetriminoPos*)(v1);
-    const TetriminoPos* p2 = (const TetriminoPos*)(v2);
-    if (p1->y > p2->y) {
-        return -1;
-    } else if (p1->y < p2->y) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-static int match_mask(RawDigit* raw, const TetriminoMask* mask, int pos_x, int pos_y, char letter, int clear) {
-    for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
-        for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
+static int match_mask(RawDigit* raw, const TetriminoMask* mask, int mask_size, int pos_x, int pos_y, char letter, int clear) {
+    for (int mask_y = 0; mask_y < mask_size; ++mask_y) {
+        for (int mask_x = 0; mask_x < mask_size; ++mask_x) {
             if (!(*mask)[mask_y][mask_x]) {
                 continue;
             }
@@ -171,31 +256,30 @@ static int match_mask(RawDigit* raw, const TetriminoMask* mask, int pos_x, int p
 
 static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
     memset(def, 0, sizeof(*def));
-  
-    int def_size = 0;
-  
+
     for (int t = 0; t < TETRIMINO_COUNT; ++t) {
         const char def_letter = s_tetrimino_defs[t].letter;
         for (int r = 0; r < 4; ++r) {
-            const TetriminoMask* mask = &s_tetrimino_defs[t].rotations[r];
+            const TetriminoDef* td = &s_tetrimino_defs[t];
+            const TetriminoMask* tm = &td->rotations[r];
       
             // find first occupied mask position
             int mask_start_x = 0;
             int mask_start_y = 0;
-            for (; mask_start_y < TETRIMINO_MASK_SIZE; ++mask_start_y) {
-                for (mask_start_x = 0; mask_start_x < TETRIMINO_MASK_SIZE; ++mask_start_x) {
-                    if ((*mask)[mask_start_y][mask_start_x]) {
+            for (; mask_start_y < td->size; ++mask_start_y) {
+                for (mask_start_x = 0; mask_start_x < td->size; ++mask_start_x) {
+                    if ((*tm)[mask_start_y][mask_start_x]) {
                         break;
                     }
                 }
-                if (mask_start_x < TETRIMINO_MASK_SIZE) {
+                if (mask_start_x < td->size) {
                     break;
                 }
             }
             //APP_LOG(APP_LOG_LEVEL_INFO, "Processing %c:%d tetrimino with first block at %d:%d", def_letter, r, mask_start_x, mask_start_y);
       
-            for (int pos_y = -TETRIMINO_MASK_SIZE; pos_y < DIGIT_HEIGHT + TETRIMINO_MASK_SIZE; ++pos_y) {
-                for (int pos_x = -TETRIMINO_MASK_SIZE; pos_x < DIGIT_WIDTH + TETRIMINO_MASK_SIZE; ++pos_x) {
+            for (int pos_y = -td->size; pos_y < DIGIT_HEIGHT + td->size; ++pos_y) {
+                for (int pos_x = -td->size; pos_x < DIGIT_WIDTH + td->size; ++pos_x) {
                     int x = pos_x + mask_start_x;
                     int y = pos_y + mask_start_y;
           
@@ -210,15 +294,15 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
           
                     //APP_LOG(APP_LOG_LEVEL_INFO, "Trying to match %c:%d tetrimino at %d:%d", def_letter, r, pos_x, pos_y);
           
-                    if (match_mask(raw, mask, pos_x, pos_y, start_letter, 0)) {
+                    if (match_mask(raw, tm, td->size, pos_x, pos_y, start_letter, 0)) {
                         //APP_LOG(APP_LOG_LEVEL_INFO, "Matched %c:%d tetrimino at %d:%d", def_letter, r, pos_x, pos_y);
-                        match_mask(raw, mask, pos_x, pos_y, start_letter, 1);            
-                        if (def_size < DIGIT_MAX_TETRIMINOS) {
-                            def->tetriminos[def_size].letter = def_letter;
-                            def->tetriminos[def_size].rotation = r;
-                            def->tetriminos[def_size].x = pos_x;
-                            def->tetriminos[def_size].y = pos_y;
-                            def_size += 1;
+                        match_mask(raw, tm, td->size, pos_x, pos_y, start_letter, 1);            
+                        if (def->size < DIGIT_MAX_TETRIMINOS) {
+                            def->tetriminos[def->size].letter = def_letter;
+                            def->tetriminos[def->size].rotation = r;
+                            def->tetriminos[def->size].x = pos_x;
+                            def->tetriminos[def->size].y = pos_y;
+                            def->size += 1;
                         }
                     }
                 }
@@ -229,18 +313,15 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
     for (int y = 0; y < DIGIT_HEIGHT; ++y) {
         for (int x = 0; x < DIGIT_WIDTH; ++x) {
             if ((*raw)[y][x] != ' ') {
-                APP_LOG(APP_LOG_LEVEL_ERROR, "Can't parse raw digit, matched %d tetriminos:", def_size);
-                for (int i = 0; i < DIGIT_HEIGHT; ++i) {
-                    APP_LOG(APP_LOG_LEVEL_ERROR, "Row %2d: %.*s", i, DIGIT_WIDTH, (*raw)[i]);
-                }
+                APP_LOG(APP_LOG_LEVEL_ERROR, "Can't parse raw digit, matched %d tetriminos:", def->size);
+                log_raw_digit(APP_LOG_LEVEL_ERROR, raw);
                 return 0;
             }      
         }
     }
 
-    APP_LOG(APP_LOG_LEVEL_INFO, "Parsed digit with %d tetriminos", def_size);
-    qsort(&def->tetriminos, def_size, sizeof(TetriminoPos), tetrimino_pos_comparator);
-    return def_size;
+    APP_LOG(APP_LOG_LEVEL_INFO, "Parsed raw digit with %d tetriminos", def->size);
+    return def->size;
 }
 #endif
 

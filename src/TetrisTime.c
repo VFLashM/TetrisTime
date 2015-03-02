@@ -7,7 +7,7 @@
 #define DIGIT_COUNT 4
 
 typedef struct {
-    const DigitDef* target;
+    DigitDef target;
     DigitDef current;
     int offset_x;
     int offset_y;
@@ -19,12 +19,9 @@ static Layer *s_layer;
 
 DigitState s_states[DIGIT_COUNT];
 
-static void draw_digit_def(DigitDef* def, Layer *layer, GContext *ctx, int offset_x, int offset_y) {
-    for (int i = 0; i < DIGIT_MAX_TETRIMINOS; ++i) {
-        TetriminoPos* tp = &def->tetriminos[i];
-        if (!tp->letter) {
-            return;
-        }
+static void draw_digit_def(const DigitDef* def, Layer *layer, GContext *ctx, int offset_x, int offset_y) {
+    for (int i = 0; i < def->size; ++i) {
+        const TetriminoPos* tp = &def->tetriminos[i];
         const TetriminoDef* td = get_tetrimino_def(tp->letter); 
         const TetriminoMask* tm = &td->rotations[tp->rotation];
 
@@ -41,20 +38,16 @@ static void draw_digit_def(DigitDef* def, Layer *layer, GContext *ctx, int offse
 }
 
 static void state_step(DigitState* state) {
-    if (!state->target) {
+    if (state->target.size == 0) {
         return;
     }
 
     const int start_y = -TETRIMINO_MASK_SIZE * 2;
     
     int last_y = TETRIMINO_MASK_SIZE;
-    int i = 0;
-    for (; i < DIGIT_MAX_TETRIMINOS; ++i) {
-        if (!state->current.tetriminos[i].letter) {
-            break;
-        }
+    for (int i = 0; i < state->current.size; ++i) {
         TetriminoPos* current_pos = &state->current.tetriminos[i];
-        const TetriminoPos* target_pos = &state->target->tetriminos[i];
+        const TetriminoPos* target_pos = &state->target.tetriminos[i];
         if (current_pos->rotation != target_pos->rotation) {
             current_pos->rotation = (current_pos->rotation + 1) % 4;
         }
@@ -69,16 +62,15 @@ static void state_step(DigitState* state) {
         last_y = current_pos->y;
     }
     if (last_y >= (start_y + TETRIMINO_MASK_SIZE)) {
-        if (i < DIGIT_MAX_TETRIMINOS) {
-            const char target_letter = state->target->tetriminos[i].letter;
-            if (target_letter) {
-                const TetriminoDef* td = get_tetrimino_def(target_letter); 
-                TetriminoPos* current_pos = &state->current.tetriminos[i];
-                current_pos->letter = target_letter;
-                current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
-                current_pos->y = start_y;
-                current_pos->rotation = rand() % 4;
-            }
+        if (state->current.size < state->target.size) {
+            const char target_letter = state->target.tetriminos[state->current.size].letter;
+            const TetriminoDef* td = get_tetrimino_def(target_letter); 
+            TetriminoPos* current_pos = &state->current.tetriminos[state->current.size];
+            current_pos->letter = target_letter;
+            current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
+            current_pos->y = start_y;
+            current_pos->rotation = rand() % 4;
+            state->current.size += 1;
         }
     }
 }
@@ -111,24 +103,24 @@ static void main_window_unload(Window *window) {
 
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     int digit_values[4];
-    digit_values[0] = tick_time->tm_hour % 10;
-    digit_values[1] = tick_time->tm_hour / 10;
-    digit_values[2] = tick_time->tm_min % 10;
-    digit_values[3] = tick_time->tm_min / 10;
+    digit_values[0] = tick_time->tm_hour / 10;
+    digit_values[1] = tick_time->tm_hour % 10;
+    digit_values[2] = tick_time->tm_min / 10;
+    digit_values[3] = tick_time->tm_min % 10;
 
     for (int i = 0; i < 4; ++i) {
         int value = digit_values[i];
         if (s_states[i].value != value) {
             s_states[i].value = value;
-            s_states[i].target = &s_digits[value];
-            for (int j = 0; j < DIGIT_MAX_TETRIMINOS; ++j) {
-                s_states[i].current.tetriminos[j].letter = 0;
-            }
+            reorder_digit(&s_states[i].target, &s_digits[value]);
+            s_states[i].current.size = 0;
         }
     }
 }
   
 static void init() {
+    srand(time(NULL));
+    
 #if USE_RAW_DIGITS == 1
     for (int i = 0; i < 10; ++i) {
         if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
