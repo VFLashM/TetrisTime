@@ -1,13 +1,9 @@
 #include <pebble.h>
 #include "digit.h"
+#include "field.h"
   
 #define ANIMATION_TIMEOUT_MS 100
-  
-#define FIELD_WIDTH 16
-#define FIELD_HEIGHT 16
-#define CELL_SIZE 4
-#define CELL_SPACING 1
-
+#define BACKGROUND_COLOR GColorWhite
 #define DIGIT_COUNT 4
 
 typedef struct {
@@ -23,10 +19,6 @@ static Layer *s_layer;
 DigitState s_states[DIGIT_COUNT];
 
 static void draw_digit_def(DigitDef* def, Layer *layer, GContext *ctx, int offset_x, int offset_y) {
-    GRect rect;
-    rect.size.h = CELL_SIZE;
-    rect.size.w = CELL_SIZE;
-    
     for (int i = 0; i < DIGIT_MAX_TETRIMINOS; ++i) {
         TetriminoPos* tp = &def->tetriminos[i];
         if (!tp->letter) {
@@ -35,16 +27,12 @@ static void draw_digit_def(DigitDef* def, Layer *layer, GContext *ctx, int offse
         const TetriminoDef* td = get_tetrimino_def(tp->letter); 
         const TetriminoMask* tm = &td->rotations[tp->rotation];
 
-        graphics_context_set_fill_color(ctx, GColorBlack);
-        
         for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
             for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
                 if ((*tm)[mask_y][mask_x]) {
-                    const int x = tp->x + mask_x;
-                    const int y = tp->y + mask_y;
-                    rect.origin.x = CELL_SPACING + x * (CELL_SIZE + CELL_SPACING) + offset_x;
-                    rect.origin.y = CELL_SPACING + y * (CELL_SIZE + CELL_SPACING) + offset_y;
-                    graphics_fill_rect(ctx, rect, 0, GCornerNone);
+                    const int x = tp->x + mask_x + offset_x;
+                    const int y = tp->y + mask_y + offset_y;
+                    field_draw(x, y, GColorBlack);
                 }
             }
         }
@@ -96,16 +84,10 @@ static void state_step(DigitState* state) {
 
 
 static void layer_draw(Layer *layer, GContext *ctx) {
-    GRect rect;
-    rect.origin.x = 0;
-    rect.origin.y = 0;
-    rect.size.w = 100;
-    rect.size.h = 100;
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_rect(ctx, rect, 0, GCornerNone);
     for (int i = 0; i < DIGIT_COUNT; ++i) {
         draw_digit_def(&s_states[i].current, layer, ctx, s_states[i].offset_x, s_states[i].offset_y);
     }
+    field_flush(layer, ctx, BACKGROUND_COLOR);
 }
 
 static void process_animation(void* data) {
@@ -118,10 +100,12 @@ static void process_animation(void* data) {
 
 static void main_window_load(Window *window) {
     s_layer = window_get_root_layer(window);
+
+    field_init(BACKGROUND_COLOR);
     layer_set_update_proc(s_layer, layer_draw);
     s_states[0].target = &s_digits[0];
-    s_states[0].offset_x = 50;
-    s_states[0].offset_y = 50;
+    s_states[0].offset_x = 10;
+    s_states[0].offset_y = 10;
 }
 
 static void main_window_unload(Window *window) {
