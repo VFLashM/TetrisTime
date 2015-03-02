@@ -1,9 +1,9 @@
-#define FIELD_WIDTH 32
-#define FIELD_HEIGHT 32
+#define FIELD_WIDTH 36
+#define FIELD_HEIGHT 24
 #define FIELD_CELL_SIZE 3
 #define FIELD_CELL_SPACING 1
 #define FIELD_OFFSET_X 0
-#define FIELD_OFFSET_Y 0
+#define FIELD_OFFSET_Y 1
 
 
 static GColor s_last_field[FIELD_HEIGHT][FIELD_WIDTH];

@@ -5,6 +5,7 @@
 #define ANIMATION_TIMEOUT_MS 100
 #define BACKGROUND_COLOR GColorWhite
 #define DIGIT_COUNT 4
+#define SECOND_DOT_COUNT 2
 
 typedef struct {
     int offset_x;
@@ -18,11 +19,18 @@ typedef struct {
     DigitDef current;
 } DigitState;
 
+typedef struct {
+    int animate_second_dot;
+    int sparse_digits;
+} Settings;
+
+static Settings s_settings;
 static int s_animating;
 static Window *s_window;
 static Layer *s_layer;
 static DigitState s_states[DIGIT_COUNT];
-
+static int s_show_second_dot = 1;
+static TetriminoPos s_second_dot_pos[SECOND_DOT_COUNT];
 
 static void state_step(DigitState* state) {
     if (!state->active) {
@@ -81,27 +89,35 @@ static void state_step(DigitState* state) {
     }
 }
 
-static void draw_digit_def(const DigitDef* def, Layer *layer, GContext *ctx, int offset_x, int offset_y) {
-    for (int i = 0; i < def->size; ++i) {
-        const TetriminoPos* tp = &def->tetriminos[i];
-        const TetriminoDef* td = get_tetrimino_def(tp->letter); 
-        const TetriminoMask* tm = &td->rotations[tp->rotation];
+static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y) {
+    const TetriminoDef* td = get_tetrimino_def(tp->letter); 
+    const TetriminoMask* tm = &td->rotations[tp->rotation];
 
-        for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
-            for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
-                if ((*tm)[mask_y][mask_x]) {
-                    const int x = tp->x + mask_x + offset_x;
-                    const int y = tp->y + mask_y + offset_y;
-                    field_draw(x, y, GColorBlack);
-                }
+    for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
+        for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
+            if ((*tm)[mask_y][mask_x]) {
+                const int x = tp->x + mask_x + offset_x;
+                const int y = tp->y + mask_y + offset_y;
+                field_draw(x, y, GColorBlack);
             }
         }
     }
 }
 
+static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y) {
+    for (int i = 0; i < def->size; ++i) {
+        draw_tetrimino(&def->tetriminos[i], offset_x, offset_y);
+    }
+}
+
 static void layer_draw(Layer *layer, GContext *ctx) {
     for (int i = 0; i < DIGIT_COUNT; ++i) {
-        draw_digit_def(&s_states[i].current, layer, ctx, s_states[i].offset_x, s_states[i].offset_y);
+        draw_digit_def(&s_states[i].current, s_states[i].offset_x, s_states[i].offset_y);
+    }
+    if (s_show_second_dot) {
+        for (int i = 0; i < SECOND_DOT_COUNT; ++i) {
+            draw_tetrimino(&s_second_dot_pos[i], 0, 0);
+        }
     }
     field_flush(layer, ctx, BACKGROUND_COLOR);
 }
@@ -117,7 +133,7 @@ static void process_animation(void* data) {
         state_step(&s_states[i]);
     }
     layer_mark_dirty(s_layer);
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
         if (s_states[i].active) {
             app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
             return;
@@ -137,15 +153,15 @@ static void main_window_unload(Window *window) {
 }
 
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
-    int digit_values[4];
+    int digit_values[DIGIT_COUNT];
     digit_values[0] = tick_time->tm_hour / 10;
     digit_values[1] = tick_time->tm_hour % 10;
     digit_values[2] = tick_time->tm_min / 10;
     digit_values[3] = tick_time->tm_min % 10;
 
     int changed = 0;
-    for (int i = 0; i < 4; ++i) {
-        int value = digit_values[i];
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
+        const int value = digit_values[i];
         if (s_states[i].next_value != value) {
             s_states[i].next_value = value;
             APP_LOG(APP_LOG_LEVEL_INFO, "Digit %d scheduled to be %d", i, value);
@@ -155,6 +171,11 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
 
     if (changed && !s_animating) {
         process_animation(NULL);
+    }
+
+    if (s_settings.animate_second_dot) {
+        s_show_second_dot = tick_time->tm_sec % 2;
+        layer_mark_dirty(s_layer);
     }
 }
   
@@ -169,16 +190,31 @@ static void init() {
     }
 #endif
 
-    for (int i = 0; i < 4; ++i) {
+    s_settings.animate_second_dot = 1;
+    s_settings.sparse_digits = 1;
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
         s_states[i].next_value = 10;
         s_states[i].target_value = 10;
         s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
     }
-    s_states[0].offset_x = 1;
-    s_states[1].offset_x = 9;
-    s_states[2].offset_x = 21;
-    s_states[3].offset_x = 29;
-  
+    for (int i = 0; i < SECOND_DOT_COUNT; ++i) {
+        s_second_dot_pos[i].x = 17;
+        s_second_dot_pos[i].letter = 'o';
+    }
+    if (s_settings.sparse_digits) {
+        s_states[0].offset_x = 1;
+        s_states[1].offset_x = 9;
+        s_states[2].offset_x = 21;
+        s_states[3].offset_x = 29;
+    } else {
+        s_states[0].offset_x = 2;
+        s_states[1].offset_x = 10;
+        s_states[2].offset_x = 20;
+        s_states[3].offset_x = 28;
+    }
+    s_second_dot_pos[0].y = FIELD_HEIGHT - DIGIT_HEIGHT + 2;
+    s_second_dot_pos[1].y = FIELD_HEIGHT - DIGIT_HEIGHT + 6;
+    
     // Create main Window element and assign to pointer
     s_window = window_create();
 
@@ -192,8 +228,11 @@ static void init() {
     window_stack_push(s_window, true);
   
     // Register with TickTimerService
-    tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-    app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
+    if (s_settings.animate_second_dot) {
+        tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+    } else {
+        tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+    }
 }
 
 static void deinit() {
