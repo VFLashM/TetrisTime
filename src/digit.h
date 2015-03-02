@@ -76,10 +76,10 @@ static void reorder_digit(DigitDef* dst, const DigitDef* src) {
             for (int mask_y = 0; mask_y < td->size;  ++mask_y) {
                 for (int mask_x = 0; mask_x < td->size; ++mask_x) {
                     if ((*tm)[mask_y][mask_x]) {
-                        if (((mask_y + 1) >= td->size) || !(*tm)[mask_y+1][mask_x]) {
+                        for (int y = src->tetriminos[t].y + mask_y + 1; y < DIGIT_HEIGHT; ++y) {
                             const int x = src->tetriminos[t].x + mask_x;
-                            const int y = src->tetriminos[t].y + mask_y + 1;
-                            if (y < DIGIT_HEIGHT && buffer[y][x] != ' ') {
+                            const char buffer_val = buffer[y][x];
+                            if (buffer_val != ('0' + t) && buffer_val != ' ') {
                                 //APP_LOG(APP_LOG_LEVEL_INFO, "Source tetrimino %d failed test at %d:%d", t, x, y);
                                 tetrimino_fits = 0;
                                 break;

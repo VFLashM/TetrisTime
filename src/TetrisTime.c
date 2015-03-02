@@ -172,9 +172,12 @@ static void init() {
     for (int i = 0; i < 4; ++i) {
         s_states[i].next_value = 10;
         s_states[i].target_value = 10;
-        s_states[i].offset_x = i * 7 + 1;
-        s_states[i].offset_y = 10;
+        s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
     }
+    s_states[0].offset_x = 1;
+    s_states[1].offset_x = 9;
+    s_states[2].offset_x = 21;
+    s_states[3].offset_x = 29;
   
     // Create main Window element and assign to pointer
     s_window = window_create();
