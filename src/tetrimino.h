@@ -5,11 +5,12 @@ typedef int TetriminoMask[TETRIMINO_MASK_SIZE][TETRIMINO_MASK_SIZE];
 
 typedef struct {
     char letter;
+    int size;
     TetriminoMask rotations[4];
 } TetriminoDef;
 
 static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
-    { 'i', {
+    { 'i', 4, {
             {{0,0,0,0},
              {1,1,1,1},
              {0,0,0,0},
@@ -27,7 +28,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,1,0,0}}
         }},
-    { 'j', {
+    { 'j', 3, {
             {{1,0,0,0},
              {1,1,1,0},
              {0,0,0,0},
@@ -45,7 +46,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {1,1,0,0},
              {0,0,0,0}}
         }},
-    { 'l', {
+    { 'l', 3, {
             {{0,0,1,0},
              {1,1,1,0},
              {0,0,0,0},
@@ -63,25 +64,25 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,0,0,0}}
         }},
-    { 'o', {
-            {{0,0,0,0},
-             {0,1,1,0},
-             {0,1,1,0},
+    { 'o', 2, {
+            {{1,1,0,0},
+             {1,1,0,0},
+             {0,0,0,0},
              {0,0,0,0}},
-            {{0,0,0,0},
-             {0,1,1,0},
-             {0,1,1,0},
+            {{1,1,0,0},
+             {1,1,0,0},
+             {0,0,0,0},
              {0,0,0,0}},
-            {{0,0,0,0},
-             {0,1,1,0},
-             {0,1,1,0},
+            {{1,1,0,0},
+             {1,1,0,0},
+             {0,0,0,0},
              {0,0,0,0}},
-            {{0,0,0,0},
-             {0,1,1,0},
-             {0,1,1,0},
+            {{1,1,0,0},
+             {1,1,0,0},
+             {0,0,0,0},
              {0,0,0,0}}
         }},
-    { 's', {
+    { 's', 3, {
             {{0,1,1,0},
              {1,1,0,0},
              {0,0,0,0},
@@ -99,7 +100,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,0,0,0}}
         }},
-    { 't', {
+    { 't', 3, {
             {{0,1,0,0},
              {1,1,1,0},
              {0,0,0,0},
@@ -117,7 +118,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,0,0,0}}
         }},
-    { 'z', {
+    { 'z', 3, {
             {{1,1,0,0},
              {0,1,1,0},
              {0,0,0,0},
@@ -136,3 +137,12 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,0,0,0}}
         }},
 };
+
+static const TetriminoDef* get_tetrimino_def(char letter) {
+    for (int i = 0; i < TETRIMINO_COUNT; ++i) {
+        if (s_tetrimino_defs[i].letter == letter) {
+            return &s_tetrimino_defs[i];
+        }
+    }
+    return NULL;
+}

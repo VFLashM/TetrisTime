@@ -5,95 +5,138 @@
   
 #define FIELD_WIDTH 16
 #define FIELD_HEIGHT 16
-#define CELL_SIZE 3
+#define CELL_SIZE 4
 #define CELL_SPACING 1
-  
-  
-bool s_field[FIELD_WIDTH][FIELD_HEIGHT];
-  
+
+#define DIGIT_COUNT 4
+
+typedef struct {
+    const DigitDef* target;
+    DigitDef current;
+    int offset_x;
+    int offset_y;
+} DigitState;
+
 static Window *s_window;
 static Layer *s_layer;
 
+DigitState s_states[DIGIT_COUNT];
 
-static void layer_draw(Layer *layer, GContext *ctx) {
-    //GRect bounds = layer_get_bounds(layer);  
-  
+static void draw_digit_def(DigitDef* def, Layer *layer, GContext *ctx, int offset_x, int offset_y) {
     GRect rect;
     rect.size.h = CELL_SIZE;
     rect.size.w = CELL_SIZE;
-  
-    for (int i = 0; i < FIELD_WIDTH; ++i) {
-        for (int j = 0; j < FIELD_HEIGHT; ++j) {      
-            rect.origin.x = CELL_SPACING + i * (CELL_SIZE + CELL_SPACING);
-            rect.origin.y = CELL_SPACING + j * (CELL_SIZE + CELL_SPACING);
-            GColor color = s_field[i][j] ? GColorBlack : GColorWhite;
-            graphics_context_set_fill_color(ctx, color);
-            graphics_fill_rect(ctx, rect, 0, GCornerNone);
+    
+    for (int i = 0; i < DIGIT_MAX_TETRIMINOS; ++i) {
+        TetriminoPos* tp = &def->tetriminos[i];
+        if (!tp->letter) {
+            return;
         }
-    }  
+        const TetriminoDef* td = get_tetrimino_def(tp->letter); 
+        const TetriminoMask* tm = &td->rotations[tp->rotation];
+
+        graphics_context_set_fill_color(ctx, GColorBlack);
+        
+        for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
+            for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
+                if ((*tm)[mask_y][mask_x]) {
+                    const int x = tp->x + mask_x;
+                    const int y = tp->y + mask_y;
+                    rect.origin.x = CELL_SPACING + x * (CELL_SIZE + CELL_SPACING) + offset_x;
+                    rect.origin.y = CELL_SPACING + y * (CELL_SIZE + CELL_SPACING) + offset_y;
+                    graphics_fill_rect(ctx, rect, 0, GCornerNone);
+                }
+            }
+        }
+    }
 }
 
-static void update_time() {
-    for (int i = 0; i < FIELD_WIDTH; ++i) {
-        for (int j = 0; j < FIELD_HEIGHT; ++j) {
-            s_field[i][j] = rand() % 2 == 0;
+static void state_step(DigitState* state) {
+    if (!state->target) {
+        return;
+    }
+
+    const int start_y = -TETRIMINO_MASK_SIZE * 2;
+    
+    int last_y = TETRIMINO_MASK_SIZE;
+    int i = 0;
+    for (; i < DIGIT_MAX_TETRIMINOS; ++i) {
+        if (!state->current.tetriminos[i].letter) {
+            break;
+        }
+        TetriminoPos* current_pos = &state->current.tetriminos[i];
+        const TetriminoPos* target_pos = &state->target->tetriminos[i];
+        if (current_pos->rotation != target_pos->rotation) {
+            current_pos->rotation = (current_pos->rotation + 1) % 4;
+        }
+        if (current_pos->y < target_pos->y) {
+            current_pos->y += 1;
+        } 
+        if (current_pos->x < target_pos->x) {
+            current_pos->x += 1;
+        } else if (current_pos->x > target_pos->x) {
+            current_pos->x -= 1;
+        }
+        last_y = current_pos->y;
+    }
+    if (last_y >= (start_y + TETRIMINO_MASK_SIZE)) {
+        if (i < DIGIT_MAX_TETRIMINOS) {
+            const char target_letter = state->target->tetriminos[i].letter;
+            if (target_letter) {
+                const TetriminoDef* td = get_tetrimino_def(target_letter); 
+                TetriminoPos* current_pos = &state->current.tetriminos[i];
+                current_pos->letter = target_letter;
+                current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
+                current_pos->y = start_y;
+                current_pos->rotation = rand() % 4;
+            }
         }
     }
-    layer_mark_dirty(s_layer);
-  
-    //window_get_root_layer(window);
-  
-    /*
-    // Get a tm structure
-    time_t temp = time(NULL); 
-    struct tm *tick_time = localtime(&temp);
+}
 
-    // Create a long-lived buffer
-    static char buffer[] = "00:00";
 
-    // Write the current hours and minutes into the buffer
-    if(clock_is_24h_style() == true) {
-    //Use 2h hour format
-    strftime(buffer, sizeof("00:00"), "%H:%M", tick_time);
-    } else {
-    //Use 12 hour format
-    strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
+static void layer_draw(Layer *layer, GContext *ctx) {
+    GRect rect;
+    rect.origin.x = 0;
+    rect.origin.y = 0;
+    rect.size.w = 100;
+    rect.size.h = 100;
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_fill_rect(ctx, rect, 0, GCornerNone);
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
+        draw_digit_def(&s_states[i].current, layer, ctx, s_states[i].offset_x, s_states[i].offset_y);
     }
-
-    // Display this time on the TextLayer
-    text_layer_set_text(s_time_layer, buffer);
-    */
 }
 
 static void process_animation(void* data) {
-    update_time();
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
+        state_step(&s_states[i]);
+    }
+    layer_mark_dirty(s_layer);
     app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
 }
 
 static void main_window_load(Window *window) {
-    // Create time TextLayer
     s_layer = window_get_root_layer(window);
     layer_set_update_proc(s_layer, layer_draw);
-  
-    // Make sure the time is displayed from the start
-    update_time();
-  
+    s_states[0].target = &s_digits[0];
+    s_states[0].offset_x = 50;
+    s_states[0].offset_y = 50;
 }
 
 static void main_window_unload(Window *window) {
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-    update_time();
 }
   
 static void init() {
 #if USE_RAW_DIGITS == 1
     for (int i = 0; i < 1; ++i) {
-    if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
-    return;
-}
-}
+        if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
+            return;
+        }
+    }
 #endif 
   
     // Create main Window element and assign to pointer

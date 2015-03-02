@@ -36,6 +36,18 @@ static RawDigit s_raw_digits[1] = {
      "itssjj"}
 };
 
+static int tetrimino_pos_comparator(const void* v1, const void* v2) {
+    const TetriminoPos* p1 = (const TetriminoPos*)(v1);
+    const TetriminoPos* p2 = (const TetriminoPos*)(v2);
+    if (p1->y > p2->y) {
+        return -1;
+    } else if (p1->y < p2->y) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 static int match_mask(RawDigit* raw, const TetriminoMask* mask, int pos_x, int pos_y, char letter, int clear) {
     for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
         for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
@@ -72,8 +84,8 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
             int mask_start_x = 0;
             int mask_start_y = 0;
             for (; mask_start_y < TETRIMINO_MASK_SIZE; ++mask_start_y) {
-                for (; mask_start_x < TETRIMINO_MASK_SIZE; ++mask_start_x) {
-                    if (mask[mask_start_y][mask_start_x]) {
+                for (mask_start_x = 0; mask_start_x < TETRIMINO_MASK_SIZE; ++mask_start_x) {
+                    if ((*mask)[mask_start_y][mask_start_x]) {
                         break;
                     }
                 }
@@ -81,7 +93,7 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
                     break;
                 }
             }
-            APP_LOG(APP_LOG_LEVEL_INFO, "Processing %c:%d tetrimino with first block at %d:%d", def_letter, r, mask_start_x, mask_start_y);
+            //APP_LOG(APP_LOG_LEVEL_INFO, "Processing %c:%d tetrimino with first block at %d:%d", def_letter, r, mask_start_x, mask_start_y);
       
             for (int pos_y = -TETRIMINO_MASK_SIZE; pos_y < DIGIT_HEIGHT + TETRIMINO_MASK_SIZE; ++pos_y) {
                 for (int pos_x = -TETRIMINO_MASK_SIZE; pos_x < DIGIT_WIDTH + TETRIMINO_MASK_SIZE; ++pos_x) {
@@ -97,10 +109,10 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
                         continue;
                     }
           
-                    APP_LOG(APP_LOG_LEVEL_INFO, "Trying to match %c:%d tetrimino at %d:%d", def_letter, r, pos_x, pos_y);
+                    //APP_LOG(APP_LOG_LEVEL_INFO, "Trying to match %c:%d tetrimino at %d:%d", def_letter, r, pos_x, pos_y);
           
                     if (match_mask(raw, mask, pos_x, pos_y, start_letter, 0)) {
-                        APP_LOG(APP_LOG_LEVEL_INFO, "Matched %c:%d tetrimino at %d:%d", def_letter, r, pos_x, pos_y);
+                        //APP_LOG(APP_LOG_LEVEL_INFO, "Matched %c:%d tetrimino at %d:%d", def_letter, r, pos_x, pos_y);
                         match_mask(raw, mask, pos_x, pos_y, start_letter, 1);            
                         if (def_size < DIGIT_MAX_TETRIMINOS) {
                             def->tetriminos[def_size].letter = def_letter;
@@ -120,13 +132,15 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
             if ((*raw)[y][x] != ' ') {
                 APP_LOG(APP_LOG_LEVEL_ERROR, "Can't parse raw digit, matched %d tetriminos:", def_size);
                 for (int i = 0; i < DIGIT_HEIGHT; ++i) {
-                    APP_LOG(APP_LOG_LEVEL_ERROR, "Row %02d: %.*s", i, DIGIT_WIDTH, (*raw)[i]);
+                    APP_LOG(APP_LOG_LEVEL_ERROR, "Row %2d: %.*s", i, DIGIT_WIDTH, (*raw)[i]);
                 }
                 return 0;
             }      
         }
     }
-  
+
+    APP_LOG(APP_LOG_LEVEL_INFO, "Parsed digit with %d tetriminos", def_size);
+    qsort(&def->tetriminos, def_size, sizeof(TetriminoPos), tetrimino_pos_comparator);
     return def_size;
 }
 #endif
