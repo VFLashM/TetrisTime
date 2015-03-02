@@ -11,6 +11,7 @@ typedef struct {
     DigitDef current;
     int offset_x;
     int offset_y;
+    int value;
 } DigitState;
 
 static Window *s_window;
@@ -103,25 +104,44 @@ static void main_window_load(Window *window) {
 
     field_init(BACKGROUND_COLOR);
     layer_set_update_proc(s_layer, layer_draw);
-    s_states[0].target = &s_digits[0];
-    s_states[0].offset_x = 10;
-    s_states[0].offset_y = 10;
 }
 
 static void main_window_unload(Window *window) {
 }
 
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
+    int digit_values[4];
+    digit_values[0] = tick_time->tm_hour % 10;
+    digit_values[1] = tick_time->tm_hour / 10;
+    digit_values[2] = tick_time->tm_min % 10;
+    digit_values[3] = tick_time->tm_min / 10;
+
+    for (int i = 0; i < 4; ++i) {
+        int value = digit_values[i];
+        if (s_states[i].value != value) {
+            s_states[i].value = value;
+            s_states[i].target = &s_digits[value];
+            for (int j = 0; j < DIGIT_MAX_TETRIMINOS; ++j) {
+                s_states[i].current.tetriminos[j].letter = 0;
+            }
+        }
+    }
 }
   
 static void init() {
 #if USE_RAW_DIGITS == 1
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < 10; ++i) {
         if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
             return;
         }
     }
-#endif 
+#endif
+
+    for (int i = 0; i < 4; ++i) {
+        s_states[i].value = 10;
+        s_states[i].offset_x = i * 7 + 1;
+        s_states[i].offset_y = 10;
+    }
   
     // Create main Window element and assign to pointer
     s_window = window_create();
