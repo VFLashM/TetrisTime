@@ -1,0 +1,19 @@
+{
+  "uuid": "5ae98212-a15a-4e5b-989e-e78849c4d3f7",
+  "shortName": "TetrisTime",
+  "longName": "TetrisTime",
+  "companyName": "MakeAwesomeHappen",
+  "versionCode": 1,
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
