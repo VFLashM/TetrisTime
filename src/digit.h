@@ -4,6 +4,8 @@
 #define DIGIT_MAX_TETRIMINOS 32
 #define DIGIT_WIDTH 6
 #define DIGIT_HEIGHT 10
+#define DIGIT_COUNT 11
+
 #define USE_RAW_DIGITS 1
   
 typedef struct {
@@ -20,7 +22,7 @@ typedef struct {
 
 typedef char RawDigit[DIGIT_HEIGHT][DIGIT_WIDTH];
 
-static DigitDef s_digits[10];
+static DigitDef s_digits[DIGIT_COUNT];
 
 static void log_raw_digit(uint8_t log_level, RawDigit* raw) {
     for (int i = 0; i < DIGIT_HEIGHT; ++i) {
@@ -120,7 +122,7 @@ static void reorder_digit(DigitDef* dst, const DigitDef* src) {
 
 #if USE_RAW_DIGITS == 1
   
-static RawDigit s_raw_digits[10] = {
+static RawDigit s_raw_digits[DIGIT_COUNT] = {
     {"tzzjjj",
      "ttzzsj",
      "tT  ss",
@@ -230,6 +232,17 @@ static RawDigit s_raw_digits[10] = {
      "    lL",
      "jJJJlL",
      "jjjJll"},
+
+    {"      ",
+     "      ",
+     "  oo  ",
+     "  oo  ",
+     "      ",
+     "      ",
+     "  oo  ",
+     "  oo  ",
+     "      ",
+     "      "},
 };
 
 static int match_mask(RawDigit* raw, const TetriminoMask* mask, int mask_size, int pos_x, int pos_y, char letter, int clear) {

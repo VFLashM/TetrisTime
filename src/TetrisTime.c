@@ -2,9 +2,11 @@
 #include "digit.h"
 #include "field.h"
 #include "settings.h"
+
+#define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
   
 #define ANIMATION_TIMEOUT_MS 100
-#define DIGIT_COUNT 4
+#define STATE_COUNT 5
 #define SECOND_DOT_COUNT 2
 
 typedef struct {
@@ -26,9 +28,8 @@ static int s_animating;
 static Window *s_window;
 static Layer *s_layer;
 
-static DigitState s_states[DIGIT_COUNT];
+static DigitState s_states[STATE_COUNT];
 static int s_show_second_dot = 1;
-static TetriminoPos s_second_dot_pos[SECOND_DOT_COUNT];
 
 static void state_step(DigitState* state) {
     if (!state->active) {
@@ -65,7 +66,7 @@ static void state_step(DigitState* state) {
         last_y = current_pos->y;
     }
     
-    if (last_y >= (start_y + TETRIMINO_MASK_SIZE)) {
+    if (last_y >= (start_y + ANIMATION_SPACING_Y)) {
         if (state->current.size < state->target.size) {
             const char target_letter = state->target.tetriminos[state->current.size].letter;
             const TetriminoDef* td = get_tetrimino_def(target_letter); 
@@ -111,13 +112,11 @@ static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y) {
 }
 
 static void layer_draw(Layer* layer, GContext* ctx) {
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
+    for (int i = 0; i < 4; ++i) {
         draw_digit_def(&s_states[i].current, s_states[i].offset_x, s_states[i].offset_y);
     }
-    if (s_show_second_dot) {
-        for (int i = 0; i < SECOND_DOT_COUNT; ++i) {
-            draw_tetrimino(&s_second_dot_pos[i], 0, 0);
-        }
+    if (s_show_second_dot || s_states[4].active) {
+        draw_digit_def(&s_states[4].current, s_states[4].offset_x, s_states[4].offset_y);
     }
     field_flush(layer, ctx, s_bg_color);
 }
@@ -129,11 +128,11 @@ static void process_animation(void* data) {
     /* st += 1; */
     
     s_animating = 1;
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
+    for (int i = 0; i < STATE_COUNT; ++i) {
         state_step(&s_states[i]);
     }
     layer_mark_dirty(s_layer);
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
+    for (int i = 0; i < STATE_COUNT; ++i) {
         if (s_states[i].active) {
             app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
             return;
@@ -153,14 +152,15 @@ static void main_window_unload(Window *window) {
 }
 
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
-    int digit_values[DIGIT_COUNT];
+    int digit_values[STATE_COUNT];
     digit_values[0] = tick_time->tm_hour / 10;
     digit_values[1] = tick_time->tm_hour % 10;
     digit_values[2] = tick_time->tm_min / 10;
     digit_values[3] = tick_time->tm_min % 10;
-
+    digit_values[4] = 10;
+    
     int changed = 0;
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
+    for (int i = 0; i < STATE_COUNT; ++i) {
         const int value = digit_values[i];
         if (s_states[i].next_value != value) {
             s_states[i].next_value = value;
@@ -191,6 +191,7 @@ static void on_settings_changed() {
         s_states[2].offset_x = 20;
         s_states[3].offset_x = 28;
     }
+    s_states[4].offset_x = 15;
 
     if (s_settings[DARK_THEME]) {
         s_bg_color = GColorBlack;
@@ -229,25 +230,20 @@ static void init() {
     settings_send();
     
 #if USE_RAW_DIGITS == 1
-    for (int i = 0; i < 10; ++i) {
-        if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
+        DigitDef def;
+        if (!parse_raw_digit(&def, &s_raw_digits[i])) {
             return;
         }
+        reorder_digit(&s_digits[i], &def);
     }
 #endif
 
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
-        s_states[i].next_value = 10;
-        s_states[i].target_value = 10;
+    for (int i = 0; i < STATE_COUNT; ++i) {
+        s_states[i].next_value = -1;
+        s_states[i].target_value = -1;
         s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
-    }
-    for (int i = 0; i < SECOND_DOT_COUNT; ++i) {
-        s_second_dot_pos[i].x = 17;
-        s_second_dot_pos[i].letter = 'o';
-    }
-    s_second_dot_pos[0].y = FIELD_HEIGHT - DIGIT_HEIGHT + 2;
-    s_second_dot_pos[1].y = FIELD_HEIGHT - DIGIT_HEIGHT + 6;
-    
+    }  
     
     // Create main Window element and assign to pointer
     s_window = window_create();
