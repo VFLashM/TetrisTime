@@ -34,7 +34,7 @@
           console.log("Got " + name + ":" + checked)
         })
         console.log("Save: " + JSON.stringify(options));
-        document.location = "pebblejs://close#" + encodeURIComponent(options);
+        document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
       }
       function cancel() {
         console.log("Cancel");
