@@ -23,7 +23,7 @@ typedef struct {
     DigitDef target;
     DigitDef current;
 
-    int tetrimino_activation_height;
+    int action_height;
     int vanishing_frame;
 } DigitState;
 
@@ -37,9 +37,11 @@ static Layer *s_layer;
 static DigitState s_states[STATE_COUNT];
 static int s_show_second_dot = 1;
 
+/*
 static int randrange(int from, int to) {
     return rand() % (to - from) + from;
 }
+*/
 
 static void state_step(DigitState* state) {
     if (!state->falling) {
@@ -64,19 +66,35 @@ static void state_step(DigitState* state) {
     for (int i = 0; i < state->current.size; ++i) {
         TetriminoPos* current_pos = &state->current.tetriminos[i];
         const TetriminoPos* target_pos = &state->target.tetriminos[i];
-        if (current_pos->y > state->tetrimino_activation_height) {
-            if (current_pos->rotation != target_pos->rotation) {
-                current_pos->rotation = (current_pos->rotation + 1) % 4;
-            }
-            if (current_pos->x < target_pos->x) {
-                current_pos->x += 1;
-            } else if (current_pos->x > target_pos->x) {
-                current_pos->x -= 1;
-            }
+
+        const int height_remaining = target_pos->y - current_pos->y;
+        const int moves_needed = abs(target_pos->x - current_pos->x);
+        int rotations_needed = target_pos->rotation - current_pos->rotation;
+        if (rotations_needed < 0) { rotations_needed += 4; }
+        const int actions_needed = moves_needed + rotations_needed;
+
+        if (state->action_height >= current_pos->y) {
+            int step = height_remaining / (actions_needed + 1);
+            state->action_height = current_pos->y + step;
         }
+
         if (current_pos->y < target_pos->y) {
             current_pos->y += 1;
-        } 
+        }
+
+        if (current_pos->y >= state->action_height) {
+            if (moves_needed > rotations_needed) {
+                if (current_pos->x < target_pos->x) {
+                    current_pos->x += 1;
+                } else if (current_pos->x > target_pos->x) {
+                    current_pos->x -= 1;
+                }
+            } else if (rotations_needed) {
+                current_pos->rotation = (current_pos->rotation + 1) % 4;
+            }
+        }
+        
+     
         last_y = current_pos->y;
     }
     
@@ -92,8 +110,8 @@ static void state_step(DigitState* state) {
             current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
             current_pos->y = start_y;
             current_pos->rotation = rand() % 4;
+            state->action_height = start_y;
             state->current.size += 1;
-            state->tetrimino_activation_height = randrange(start_y + TETRIMINO_MASK_SIZE, -2*TETRIMINO_MASK_SIZE);
         }
     }
 
