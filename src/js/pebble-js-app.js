@@ -13,13 +13,14 @@ Pebble.addEventListener("appmessage",
 
 Pebble.addEventListener("showConfiguration",
     function(e) {
-        console.log('Showing config')
-        
-        var url = 'http://www.somehost.com/'
+        var url = 'http://www.googledrive.com/host/0B1O5Onb__DjSZEFmelNCSUMzN0E'
         var options = window.localStorage.getItem("options")
         if (options !== null) {
-            Pebble.openURL(url + '?options=' + escape(options));
+            options = escape(options)
+            console.log('Showing config with options=' + options)
+            Pebble.openURL(url + '?options=' + options);
         } else {
+            console.log('Showing config with no options')
             Pebble.openURL(url);
         }
     }
