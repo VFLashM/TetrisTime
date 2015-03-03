@@ -4,21 +4,27 @@
 #include "settings.h"
 
 #define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
-  
+#define ANIMATION_PERIOD_INVIS_FRAMES 1
+#define ANIMATION_PERIOD_VIS_FRAMES 2
+#define ANIMATION_PERIOD_FRAMES (ANIMATION_PERIOD_INVIS_FRAMES + ANIMATION_PERIOD_VIS_FRAMES)
+#define ANIMATION_PERIODS 3
 #define ANIMATION_TIMEOUT_MS 100
+
 #define STATE_COUNT 5
-#define SECOND_DOT_COUNT 2
 
 typedef struct {
     int offset_x;
     int offset_y;
     
-    char active;
+    char falling;
 
     int target_value;
     int next_value;
     DigitDef target;
     DigitDef current;
+
+    int tetrimino_activation_height;
+    int vanishing_frame;
 } DigitState;
 
 static GColor s_bg_color;
@@ -31,26 +37,34 @@ static Layer *s_layer;
 static DigitState s_states[STATE_COUNT];
 static int s_show_second_dot = 1;
 
+static int randrange(int from, int to) {
+    return rand() % (to - from) + from;
+}
+
 static void state_step(DigitState* state) {
-    if (!state->active) {
+    if (!state->falling) {
         if (state->next_value != state->target_value) {
-            APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
-            state->target_value = state->next_value;
-            reorder_digit(&state->target, &s_digits[state->target_value]);
-            state->current.size = 0;
-            state->active = 1;
+            if (state->vanishing_frame > ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES) {
+                APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
+                state->target_value = state->next_value;
+                reorder_digit(&state->target, &s_digits[state->target_value]);
+                state->current.size = 0;
+                state->falling = 1;
+                state->vanishing_frame = 0;
+            } else {
+                state->vanishing_frame += 1;
+                return;
+            }
         } else {
             return;
         }
     }
-    
-    const int start_y = DIGIT_HEIGHT - FIELD_HEIGHT - TETRIMINO_MASK_SIZE;
-    
+   
     int last_y = TETRIMINO_MASK_SIZE;
     for (int i = 0; i < state->current.size; ++i) {
         TetriminoPos* current_pos = &state->current.tetriminos[i];
         const TetriminoPos* target_pos = &state->target.tetriminos[i];
-        if (current_pos->y > -2*TETRIMINO_MASK_SIZE) {
+        if (current_pos->y > state->tetrimino_activation_height) {
             if (current_pos->rotation != target_pos->rotation) {
                 current_pos->rotation = (current_pos->rotation + 1) % 4;
             }
@@ -66,16 +80,20 @@ static void state_step(DigitState* state) {
         last_y = current_pos->y;
     }
     
-    if (last_y >= (start_y + ANIMATION_SPACING_Y)) {
-        if (state->current.size < state->target.size) {
-            const char target_letter = state->target.tetriminos[state->current.size].letter;
-            const TetriminoDef* td = get_tetrimino_def(target_letter); 
+    
+    if (state->current.size < state->target.size) {
+        const char target_letter = state->target.tetriminos[state->current.size].letter;
+        const TetriminoDef* td = get_tetrimino_def(target_letter);
+
+        const int start_y = DIGIT_HEIGHT - FIELD_HEIGHT - td->size;
+        if (last_y >= (start_y + ANIMATION_SPACING_Y)) {
             TetriminoPos* current_pos = &state->current.tetriminos[state->current.size];
             current_pos->letter = target_letter;
             current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
             current_pos->y = start_y;
             current_pos->rotation = rand() % 4;
             state->current.size += 1;
+            state->tetrimino_activation_height = randrange(start_y + TETRIMINO_MASK_SIZE, -2*TETRIMINO_MASK_SIZE);
         }
     }
 
@@ -85,7 +103,7 @@ static void state_step(DigitState* state) {
                    &state->target.tetriminos[state->target.size-1],
                    sizeof(TetriminoPos)) == 0)
         {
-            state->active = 0;
+            state->falling = 0;
         }
     }
 }
@@ -111,12 +129,22 @@ static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y) {
     }
 }
 
+static void draw_digit_state(const DigitState* state) {
+    if (state->vanishing_frame) {
+        const int in_period = (state->vanishing_frame - 1) % ANIMATION_PERIOD_FRAMES;
+        if (in_period < ANIMATION_PERIOD_INVIS_FRAMES) {
+            return;
+        }
+    }
+    draw_digit_def(&state->current, state->offset_x, state->offset_y);
+}
+
 static void layer_draw(Layer* layer, GContext* ctx) {
     for (int i = 0; i < 4; ++i) {
-        draw_digit_def(&s_states[i].current, s_states[i].offset_x, s_states[i].offset_y);
+        draw_digit_state(&s_states[i]);
     }
-    if (s_show_second_dot || s_states[4].active) {
-        draw_digit_def(&s_states[4].current, s_states[4].offset_x, s_states[4].offset_y);
+    if (s_show_second_dot || s_states[4].falling || s_states[4].vanishing_frame) {
+        draw_digit_state(&s_states[4]);
     }
     field_flush(layer, ctx, s_bg_color);
 }
@@ -133,7 +161,7 @@ static void process_animation(void* data) {
     }
     layer_mark_dirty(s_layer);
     for (int i = 0; i < STATE_COUNT; ++i) {
-        if (s_states[i].active) {
+        if (s_states[i].falling || s_states[i].vanishing_frame) {
             app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
             return;
         }
