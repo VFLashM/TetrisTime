@@ -175,24 +175,17 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     }
 }
 
-static void in_received_handler(DictionaryIterator* iter, void* context)
-{
-    APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
-    settings_read(iter);
-    on_settings_changed();
-}
-
 static void on_settings_changed() {
-    if (s_settings[SPARSE_DIGITS]) {
-        s_states[0].offset_x = 1;
-        s_states[1].offset_x = 9;
-        s_states[2].offset_x = 21;
-        s_states[3].offset_x = 29;
-    } else {
+    if (s_settings[COMPACT_DIGITS]) {
         s_states[0].offset_x = 2;
         s_states[1].offset_x = 10;
         s_states[2].offset_x = 20;
         s_states[3].offset_x = 28;
+    } else {
+        s_states[0].offset_x = 1;
+        s_states[1].offset_x = 9;
+        s_states[2].offset_x = 21;
+        s_states[3].offset_x = 29;
     }
 
     if (s_settings[DARK_THEME]) {
@@ -209,6 +202,13 @@ static void on_settings_changed() {
     } else {
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
+}
+
+static void in_received_handler(DictionaryIterator* iter, void* context)
+{
+    APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
+    settings_read(iter);
+    on_settings_changed();
 }
   
 static void init() {
