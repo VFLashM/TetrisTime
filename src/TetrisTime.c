@@ -85,7 +85,7 @@ static void state_step(DigitState* state) {
         const char target_letter = state->target.tetriminos[state->current.size].letter;
         const TetriminoDef* td = get_tetrimino_def(target_letter);
 
-        const int start_y = DIGIT_HEIGHT - FIELD_HEIGHT - td->size;
+        const int start_y = DIGIT_HEIGHT - FIELD_HEIGHT - td->size + 1;
         if (last_y >= (start_y + ANIMATION_SPACING_Y)) {
             TetriminoPos* current_pos = &state->current.tetriminos[state->current.size];
             current_pos->letter = target_letter;
