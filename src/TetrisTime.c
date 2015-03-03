@@ -43,7 +43,7 @@ static void state_step(DigitState* state) {
         }
     }
     
-    const int start_y = -TETRIMINO_MASK_SIZE * 2;
+    const int start_y = FIELD_HEIGHT - DIGIT_HEIGHT - TETRIMINO_MASK_SIZE;
     
     int last_y = TETRIMINO_MASK_SIZE;
     for (int i = 0; i < state->current.size; ++i) {
