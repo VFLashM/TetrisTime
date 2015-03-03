@@ -21,9 +21,11 @@ typedef struct {
 
 static GColor s_bg_color;
 static GColor s_fg_color;
+
 static int s_animating;
 static Window *s_window;
 static Layer *s_layer;
+
 static DigitState s_states[DIGIT_COUNT];
 static int s_show_second_dot = 1;
 static TetriminoPos s_second_dot_pos[SECOND_DOT_COUNT];
@@ -106,7 +108,7 @@ static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y) {
     }
 }
 
-static void layer_draw(Layer *layer, GContext *ctx) {
+static void layer_draw(Layer* layer, GContext* ctx) {
     for (int i = 0; i < DIGIT_COUNT; ++i) {
         draw_digit_def(&s_states[i].current, s_states[i].offset_x, s_states[i].offset_y);
     }
@@ -176,16 +178,16 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
 }
 
 static void on_settings_changed() {
-    if (s_settings[COMPACT_DIGITS]) {
-        s_states[0].offset_x = 2;
-        s_states[1].offset_x = 10;
-        s_states[2].offset_x = 20;
-        s_states[3].offset_x = 28;
-    } else {
+    if (s_settings[SPARSE_DIGITS]) {
         s_states[0].offset_x = 1;
         s_states[1].offset_x = 9;
         s_states[2].offset_x = 21;
         s_states[3].offset_x = 29;
+    } else {
+        s_states[0].offset_x = 2;
+        s_states[1].offset_x = 10;
+        s_states[2].offset_x = 20;
+        s_states[3].offset_x = 28;
     }
 
     if (s_settings[DARK_THEME]) {
@@ -202,6 +204,11 @@ static void on_settings_changed() {
     } else {
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
+
+    if (s_layer) {
+        layer_mark_dirty(s_layer);
+    }
+    field_init(s_bg_color);
 }
 
 static void in_received_handler(DictionaryIterator* iter, void* context)
