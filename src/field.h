@@ -6,6 +6,7 @@
 #define FIELD_OFFSET_Y 1
 
 
+static int s_first_call;
 static GColor s_last_field[FIELD_HEIGHT][FIELD_WIDTH];
 static GColor s_next_field[FIELD_HEIGHT][FIELD_WIDTH];
 
@@ -16,6 +17,7 @@ static void field_init(GColor background) {
             s_next_field[j][i] = background;
         }
     }
+    s_first_call = 1;
 }
 
 static void field_draw(int x, int y, GColor color) {
@@ -26,6 +28,14 @@ static void field_draw(int x, int y, GColor color) {
 
 static void field_flush(Layer* layer, GContext* ctx, GColor background) {
     GRect rect;
+    
+    if (s_first_call) {
+        rect = layer_get_bounds(layer);
+        graphics_context_set_fill_color(ctx, background);
+        graphics_fill_rect(ctx, rect, 0, GCornerNone);
+        s_first_call = 0;
+    }
+    
     rect.size.h = FIELD_CELL_SIZE;
     rect.size.w = FIELD_CELL_SIZE;
     
