@@ -43,23 +43,25 @@ static void state_step(DigitState* state) {
         }
     }
     
-    const int start_y = FIELD_HEIGHT - DIGIT_HEIGHT - TETRIMINO_MASK_SIZE;
+    const int start_y = DIGIT_HEIGHT - FIELD_HEIGHT - TETRIMINO_MASK_SIZE;
     
     int last_y = TETRIMINO_MASK_SIZE;
     for (int i = 0; i < state->current.size; ++i) {
         TetriminoPos* current_pos = &state->current.tetriminos[i];
         const TetriminoPos* target_pos = &state->target.tetriminos[i];
-        if (current_pos->rotation != target_pos->rotation) {
-            current_pos->rotation = (current_pos->rotation + 1) % 4;
+        if (current_pos->y > -2*TETRIMINO_MASK_SIZE) {
+            if (current_pos->rotation != target_pos->rotation) {
+                current_pos->rotation = (current_pos->rotation + 1) % 4;
+            }
+            if (current_pos->x < target_pos->x) {
+                current_pos->x += 1;
+            } else if (current_pos->x > target_pos->x) {
+                current_pos->x -= 1;
+            }
         }
         if (current_pos->y < target_pos->y) {
             current_pos->y += 1;
         } 
-        if (current_pos->x < target_pos->x) {
-            current_pos->x += 1;
-        } else if (current_pos->x > target_pos->x) {
-            current_pos->x -= 1;
-        }
         last_y = current_pos->y;
     }
     
