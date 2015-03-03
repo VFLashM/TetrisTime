@@ -139,10 +139,22 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
 };
 
 static const TetriminoDef* get_tetrimino_def(char letter) {
+    switch (letter) {
+    case 'i': return &s_tetrimino_defs[0];
+    case 'j': return &s_tetrimino_defs[1];
+    case 'l': return &s_tetrimino_defs[2];
+    case 'o': return &s_tetrimino_defs[3];
+    case 's': return &s_tetrimino_defs[4];
+    case 't': return &s_tetrimino_defs[5];
+    case 'z': return &s_tetrimino_defs[6];
+    default: return NULL;
+    }
+    /*
     for (int i = 0; i < TETRIMINO_COUNT; ++i) {
         if (s_tetrimino_defs[i].letter == letter) {
             return &s_tetrimino_defs[i];
         }
     }
     return NULL;
+    */
 }
