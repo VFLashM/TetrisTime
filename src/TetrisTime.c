@@ -1,9 +1,9 @@
 #include <pebble.h>
 #include "digit.h"
 #include "field.h"
+#include "settings.h"
   
 #define ANIMATION_TIMEOUT_MS 100
-#define BACKGROUND_COLOR GColorWhite
 #define DIGIT_COUNT 4
 #define SECOND_DOT_COUNT 2
 
@@ -19,12 +19,8 @@ typedef struct {
     DigitDef current;
 } DigitState;
 
-typedef struct {
-    int animate_second_dot;
-    int sparse_digits;
-} Settings;
-
-static Settings s_settings;
+static GColor s_bg_color;
+static GColor s_fg_color;
 static int s_animating;
 static Window *s_window;
 static Layer *s_layer;
@@ -98,7 +94,7 @@ static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y) {
             if ((*tm)[mask_y][mask_x]) {
                 const int x = tp->x + mask_x + offset_x;
                 const int y = tp->y + mask_y + offset_y;
-                field_draw(x, y, GColorBlack);
+                field_draw(x, y, s_fg_color);
             }
         }
     }
@@ -119,7 +115,7 @@ static void layer_draw(Layer *layer, GContext *ctx) {
             draw_tetrimino(&s_second_dot_pos[i], 0, 0);
         }
     }
-    field_flush(layer, ctx, BACKGROUND_COLOR);
+    field_flush(layer, ctx, s_bg_color);
 }
 
 
@@ -145,7 +141,7 @@ static void process_animation(void* data) {
 static void main_window_load(Window *window) {
     s_layer = window_get_root_layer(window);
 
-    field_init(BACKGROUND_COLOR);
+    field_init(s_bg_color);
     layer_set_update_proc(s_layer, layer_draw);
 }
 
@@ -173,35 +169,21 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
         process_animation(NULL);
     }
 
-    if (s_settings.animate_second_dot) {
+    if (s_settings[ANIMATE_SECOND_DOT]) {
         s_show_second_dot = tick_time->tm_sec % 2;
         layer_mark_dirty(s_layer);
     }
 }
-  
-static void init() {
-    srand(time(NULL));
-    
-#if USE_RAW_DIGITS == 1
-    for (int i = 0; i < 10; ++i) {
-        if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
-            return;
-        }
-    }
-#endif
 
-    s_settings.animate_second_dot = 1;
-    s_settings.sparse_digits = 1;
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
-        s_states[i].next_value = 10;
-        s_states[i].target_value = 10;
-        s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
-    }
-    for (int i = 0; i < SECOND_DOT_COUNT; ++i) {
-        s_second_dot_pos[i].x = 17;
-        s_second_dot_pos[i].letter = 'o';
-    }
-    if (s_settings.sparse_digits) {
+static void in_received_handler(DictionaryIterator* iter, void* context)
+{
+    APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
+    settings_read(iter);
+    on_settings_changed();
+}
+
+static void on_settings_changed() {
+    if (s_settings[SPARSE_DIGITS]) {
         s_states[0].offset_x = 1;
         s_states[1].offset_x = 9;
         s_states[2].offset_x = 21;
@@ -212,8 +194,51 @@ static void init() {
         s_states[2].offset_x = 20;
         s_states[3].offset_x = 28;
     }
+
+    if (s_settings[DARK_THEME]) {
+        s_bg_color = GColorBlack;
+        s_fg_color = GColorWhite;
+    } else {
+        s_bg_color = GColorWhite;
+        s_fg_color = GColorBlack;
+    }
+
+    tick_timer_service_unsubscribe();
+    if (s_settings[ANIMATE_SECOND_DOT]) {
+        tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+    } else {
+        tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+    }
+}
+  
+static void init() {
+    srand(time(NULL));
+
+    settings_load_persistent();
+    app_message_register_inbox_received(in_received_handler);
+    app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+    settings_send();
+    
+#if USE_RAW_DIGITS == 1
+    for (int i = 0; i < 10; ++i) {
+        if (!parse_raw_digit(&s_digits[i], &s_raw_digits[i])) {
+            return;
+        }
+    }
+#endif
+
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
+        s_states[i].next_value = 10;
+        s_states[i].target_value = 10;
+        s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
+    }
+    for (int i = 0; i < SECOND_DOT_COUNT; ++i) {
+        s_second_dot_pos[i].x = 17;
+        s_second_dot_pos[i].letter = 'o';
+    }
     s_second_dot_pos[0].y = FIELD_HEIGHT - DIGIT_HEIGHT + 2;
     s_second_dot_pos[1].y = FIELD_HEIGHT - DIGIT_HEIGHT + 6;
+    
     
     // Create main Window element and assign to pointer
     s_window = window_create();
@@ -226,13 +251,8 @@ static void init() {
 
     // Show the Window on the watch, with animated=true
     window_stack_push(s_window, true);
-  
-    // Register with TickTimerService
-    if (s_settings.animate_second_dot) {
-        tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
-    } else {
-        tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-    }
+
+    on_settings_changed();
 }
 
 static void deinit() {

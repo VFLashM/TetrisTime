@@ -1,19 +1,23 @@
 {
-  "uuid": "5ae98212-a15a-4e5b-989e-e78849c4d3f7",
-  "shortName": "TetrisTime",
-  "longName": "TetrisTime",
-  "companyName": "MakeAwesomeHappen",
-  "versionCode": 1,
-  "versionLabel": "1.0",
-  "sdkVersion": "3",
-  "targetPlatforms": ["aplite", "basalt"],
-  "watchapp": {
-    "watchface": false
-  },
-  "appKeys": {
-    "dummy": 0
-  },
-  "resources": {
-    "media": []
-  }
+    "uuid": "5ae98212-a15a-4e5b-989e-e78849c4d3f7",
+    "shortName": "TetrisTime",
+    "longName": "TetrisTime",
+    "capabilities": [ "configurable" ],
+    "companyName": "vflashm",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "sdkVersion": "3",
+    "targetPlatforms": ["aplite"],
+    "watchapp": {
+        "watchface": true
+    },
+    "appKeys": {
+        "VERSION": 0,
+        "DARK_THEME": 1,
+        "ANIMATE_SECOND_DOT": 2,
+        "SPARSE_DIGITS": 3
+    },
+    "resources": {
+        "media": []
+    }
 }
