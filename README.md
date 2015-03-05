@@ -1,6 +1,6 @@
 # TetrisTime
 
-Watchface with digits made out of tetris figures.
+Pebble watchface with digits made out of tetris figures.
 
 When time changes, old digit vanishes and new digit is reassembled out of falling tetris figures.
 
