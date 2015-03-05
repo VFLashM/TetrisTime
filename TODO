@@ -1,7 +1,6 @@
 configurable animations (timeout/period ticks/periods)
 configurable styles (default/staight/curved)
 configurable dynamic assembly
-12/24h
 
 minor:
 dots can overlap with dense digits when falling

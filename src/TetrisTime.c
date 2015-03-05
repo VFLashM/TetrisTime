@@ -199,8 +199,15 @@ static void main_window_unload(Window *window) {
 
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     int digit_values[STATE_COUNT];
-    digit_values[0] = tick_time->tm_hour / 10;
-    digit_values[1] = tick_time->tm_hour % 10;
+    int hour = tick_time->tm_hour;
+    if (!clock_is_24h_style()) {
+        hour = hour % 12;
+        if (hour == 0) {
+            hour = 12;
+        }
+    }
+    digit_values[0] = hour / 10;
+    digit_values[1] = hour % 10;
     digit_values[2] = tick_time->tm_min / 10;
     digit_values[3] = tick_time->tm_min % 10;
     digit_values[4] = 10;
