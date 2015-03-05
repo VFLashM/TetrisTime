@@ -30,7 +30,7 @@
       }
       function save() {
         $("input:checked").each(function (index) {
-          options[this.name] = this.value;
+          options[this.name] = Number(this.value);
         })
         console.log("Save: " + JSON.stringify(options));
         document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
