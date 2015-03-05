@@ -299,6 +299,11 @@ static void init() {
         }
         reorder_digit(&s_digits[i], &def);
     }
+    /*
+    for (int i = 0; i < DIGIT_COUNT; ++i) {
+        format_digit_def_struct(&s_digits[i]);
+    }
+    */
 #endif
 
     for (int i = 0; i < STATE_COUNT; ++i) {

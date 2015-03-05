@@ -1,12 +1,12 @@
 #include "pebble.h"
 #include "tetrimino.h"
   
-#define DIGIT_MAX_TETRIMINOS 32
+#define DIGIT_MAX_TETRIMINOS 16
 #define DIGIT_WIDTH 6
 #define DIGIT_HEIGHT 10
 #define DIGIT_COUNT 11
 
-#define USE_RAW_DIGITS 1
+#define USE_RAW_DIGITS 0
   
 typedef struct {
     char letter;
@@ -21,8 +21,6 @@ typedef struct {
 } DigitDef;
 
 typedef char RawDigit[DIGIT_HEIGHT][DIGIT_WIDTH];
-
-static DigitDef s_digits[DIGIT_COUNT];
 
 static void log_raw_digit(uint8_t log_level, RawDigit* raw) {
     for (int i = 0; i < DIGIT_HEIGHT; ++i) {
@@ -336,5 +334,173 @@ static int parse_raw_digit(DigitDef* def, RawDigit* raw) {
     APP_LOG(APP_LOG_LEVEL_INFO, "Parsed raw digit with %d tetriminos", def->size);
     return def->size;
 }
+
+static void format_digit_def_struct(const DigitDef* def) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "{ %d,", def->size);
+    APP_LOG(APP_LOG_LEVEL_INFO, "  {");
+    for (int i = 0; i < def->size; ++i) {
+        const TetriminoPos* tp = &def->tetriminos[i];
+        APP_LOG(APP_LOG_LEVEL_INFO, "    {'%c', %d, %d, %d},", tp->letter, tp->rotation, tp->x, tp->y);
+    }
+    APP_LOG(APP_LOG_LEVEL_INFO, "  }");
+    APP_LOG(APP_LOG_LEVEL_INFO, "},");
+}
+
+static DigitDef s_digits[DIGIT_COUNT];
+
+#else
+
+static DigitDef s_digits[DIGIT_COUNT] = {
+    { 12,
+      {
+          {'i', 1, -2, 6},
+          {'j', 3, 4, 7},
+          {'s', 0, 2, 8},
+          {'t', 1, 0, 7},
+          {'s', 1, -1, 4},
+          {'t', 3, 0, 2},
+          {'t', 1, -1, 0},
+          {'z', 0, 1, 0},
+          {'z', 1, 3, 5},
+          {'t', 1, 3, 3},
+          {'s', 1, 3, 1},
+          {'j', 2, 3, -1},
+      }
+    },
+    { 6,
+      {
+          {'l', 1, 3, 7},
+          {'l', 3, 4, 6},
+          {'o', 0, 4, 4},
+          {'i', 0, 2, 2},
+          {'l', 0, 2, 1},
+          {'l', 3, 4, 0},
+      }
+    },
+    { 11,
+      {
+          {'j', 0, 0, 8},
+          {'l', 0, 3, 8},
+          {'i', 0, 1, 7},
+          {'o', 0, 0, 6},
+          {'i', 0, 1, 4},
+          {'j', 2, 3, 3},
+          {'l', 2, 0, 3},
+          {'o', 0, 4, 2},
+          {'i', 0, 1, 0},
+          {'j', 2, 3, -1},
+          {'l', 2, 0, -1},
+      }
+    },
+    { 10,
+      {
+          {'o', 0, 0, 8},
+          {'i', 1, 3, 6},
+          {'j', 0, 2, 8},
+          {'j', 3, 3, 6},
+          {'i', 0, 2, 4},
+          {'l', 0, 2, 3},
+          {'l', 3, 4, 2},
+          {'i', 0, 1, 0},
+          {'j', 2, 3, -1},
+          {'l', 2, 0, -1},
+      }
+    },
+    { 9,
+      {
+          {'j', 3, 4, 7},
+          {'j', 1, 3, 6},
+          {'i', 0, 1, 4},
+          {'l', 2, 0, 3},
+          {'o', 0, 0, 2},
+          {'j', 2, 3, 3},
+          {'l', 1, 3, 1},
+          {'l', 3, 4, 0},
+          {'o', 0, 0, 0},
+      }
+    },
+    { 11,
+      {
+          {'j', 0, 0, 8},
+          {'l', 0, 3, 8},
+          {'i', 0, 1, 7},
+          {'o', 0, 4, 6},
+          {'i', 0, 1, 4},
+          {'j', 2, 3, 3},
+          {'l', 2, 0, 3},
+          {'o', 0, 0, 2},
+          {'i', 0, 1, 0},
+          {'j', 2, 3, -1},
+          {'l', 2, 0, -1},
+      }
+    },
+    { 12,
+      {
+          {'t', 0, 3, 8},
+          {'j', 0, 0, 8},
+          {'s', 1, 3, 6},
+          {'t', 3, 4, 4},
+          {'j', 0, 1, 7},
+          {'s', 0, 2, 4},
+          {'t', 1, -1, 5},
+          {'t', 2, 0, 3},
+          {'o', 0, 0, 2},
+          {'i', 0, 1, 0},
+          {'j', 2, 3, -1},
+          {'l', 2, 0, -1},
+      }
+    },
+    { 7,
+      {
+          {'j', 3, 4, 7},
+          {'j', 1, 3, 6},
+          {'l', 1, 3, 3},
+          {'l', 3, 4, 2},
+          {'i', 0, 1, 0},
+          {'l', 2, 0, -1},
+          {'j', 2, 3, -1},
+      }
+    },
+    { 13,
+      {
+          {'t', 0, 1, 8},
+          {'z', 0, 3, 8},
+          {'t', 3, 4, 6},
+          {'z', 1, 3, 4},
+          {'z', 1, -1, 7},
+          {'t', 1, -1, 5},
+          {'j', 0, 1, 4},
+          {'t', 1, -1, 2},
+          {'l', 0, 2, 3},
+          {'s', 1, -1, 0},
+          {'t', 3, 4, 1},
+          {'s', 0, 3, 0},
+          {'t', 2, 1, -1},
+      }
+    },
+    { 12,
+      {
+          {'l', 1, 3, 7},
+          {'l', 3, 4, 6},
+          {'j', 0, 0, 8},
+          {'j', 2, 1, 7},
+          {'i', 0, 2, 4},
+          {'l', 0, 3, 3},
+          {'s', 0, 0, 4},
+          {'z', 1, -1, 2},
+          {'t', 1, -1, 0},
+          {'z', 0, 1, 0},
+          {'t', 1, 3, 1},
+          {'j', 2, 3, -1},
+      }
+    },
+    { 2,
+      {
+          {'o', 0, 2, 6},
+          {'o', 0, 2, 2},
+      }
+    },
+};
+
 #endif
 
