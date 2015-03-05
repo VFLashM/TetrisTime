@@ -6,8 +6,6 @@
     "companyName": "vflashm",
     "versionCode": 1,
     "versionLabel": "1.0",
-    "sdkVersion": "3",
-    "targetPlatforms": ["aplite"],
     "watchapp": {
         "watchface": true
     },
