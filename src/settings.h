@@ -39,7 +39,18 @@ static void settings_read(DictionaryIterator* iter)
 {
     Tuple* t = dict_read_first(iter);
     while (t) {
-        s_settings[t->key] = t->value->int32;
+        if (t->key < MAX_KEY) {
+            switch (t->type) {
+            case TUPLE_UINT:
+            case TUPLE_INT:
+                s_settings[t->key] = t->value->int8;
+                break;
+            default:
+                APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected key type: %d:%d", (int)t->key, (int)t->type);
+            }
+        } else {
+            APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected key: %d", (int)t->key);
+        }
         t = dict_read_next(iter);
     }
     settings_save_persistent();
