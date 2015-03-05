@@ -50,7 +50,7 @@ static void state_step(DigitState* state) {
     if (!state->falling) {
         if (state->next_value != state->target_value) {
             if (state->vanishing_frame > ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES) {
-                APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
+                //APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
                 state->target_value = state->next_value;
                 if (DYNAMIC_ASSEMBLY) {
                     reorder_digit(&state->target, &s_digits[state->target_value]);
@@ -176,9 +176,11 @@ static void layer_draw(Layer* layer, GContext* ctx) {
 
 
 static void process_animation(void* data) {
-    /* static int st = 0; */
-    /* APP_LOG(APP_LOG_LEVEL_INFO, "Step %d", st); */
-    /* st += 1; */
+    /*
+    static int st = 0;
+    APP_LOG(APP_LOG_LEVEL_INFO, "Step %d", st);
+    st += 1;
+    */
     
     s_animating = 1;
     for (int i = 0; i < STATE_COUNT; ++i) {
@@ -224,7 +226,7 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
         const int value = digit_values[i];
         if (s_states[i].next_value != value) {
             s_states[i].next_value = value;
-            APP_LOG(APP_LOG_LEVEL_INFO, "Digit %d scheduled to be %d", i, value);
+            //APP_LOG(APP_LOG_LEVEL_INFO, "Digit %d scheduled to be %d", i, value);
             changed = 1;
         }
     }
@@ -276,7 +278,7 @@ static void on_settings_changed() {
 
 static void in_received_handler(DictionaryIterator* iter, void* context)
 {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
+    //APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
     settings_read(iter);
     on_settings_changed();
 }
