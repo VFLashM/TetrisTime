@@ -275,6 +275,7 @@ static void on_settings_changed() {
     if (s_settings[ANIMATE_SECOND_DOT]) {
         tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
     } else {
+        s_show_second_dot = 1;
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
 
@@ -286,8 +287,8 @@ static void on_settings_changed() {
 
 static void in_received_handler(DictionaryIterator* iter, void* context)
 {
-    //APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
     settings_read(iter);
+    APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
     on_settings_changed();
 }
   
