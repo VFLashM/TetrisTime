@@ -179,7 +179,7 @@ static void layer_draw(Layer* layer, GContext* ctx) {
     if (s_show_second_dot || s_states[4].falling || s_states[4].vanishing_frame) {
         draw_digit_state(&s_states[4]);
     }
-    field_flush(layer, ctx, s_bg_color);
+    field_flush(layer, ctx);
 }
 
 
@@ -207,7 +207,7 @@ static void process_animation(void* data) {
 static void main_window_load(Window *window) {
     s_layer = window_get_root_layer(window);
 
-    field_reset();
+    field_reset(s_bg_color);
     layer_set_update_proc(s_layer, layer_draw);
 }
 
@@ -278,7 +278,7 @@ static void on_settings_changed() {
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
 
-    field_reset();
+    field_reset(s_bg_color);
     if (s_layer) {
         layer_mark_dirty(s_layer);
     }

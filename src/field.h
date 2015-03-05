@@ -7,10 +7,18 @@
 
 
 static int s_field_inited;
+static GColor s_field_bg_color;
 static GColor s_last_field[FIELD_HEIGHT][FIELD_WIDTH];
 static GColor s_next_field[FIELD_HEIGHT][FIELD_WIDTH];
 
-static void field_reset() {
+static void field_reset(GColor background) {
+    s_field_bg_color = background;
+    for (int j = 0; j < FIELD_HEIGHT; ++j) {
+        for (int i = 0; i < FIELD_WIDTH; ++i) {
+            s_last_field[j][i] = background;
+            s_next_field[j][i] = background;
+        }
+    }
     s_field_inited = 0;
 }
 
@@ -20,18 +28,12 @@ static void field_draw(int x, int y, GColor color) {
     }
 }
 
-static void field_flush(Layer* layer, GContext* ctx, GColor background) {
+static void field_flush(Layer* layer, GContext* ctx) {
     GRect rect;
     
     if (!s_field_inited) {
-        for (int j = 0; j < FIELD_HEIGHT; ++j) {
-            for (int i = 0; i < FIELD_WIDTH; ++i) {
-                s_last_field[j][i] = background;
-            }
-        }
-
         rect = layer_get_bounds(layer);
-        graphics_context_set_fill_color(ctx, background);
+        graphics_context_set_fill_color(ctx, s_field_bg_color);
         graphics_fill_rect(ctx, rect, 0, GCornerNone);
 
         s_field_inited = 1;
@@ -51,7 +53,7 @@ static void field_flush(Layer* layer, GContext* ctx, GColor background) {
                 rect.origin.y = FIELD_OFFSET_Y + j * (FIELD_CELL_SIZE + FIELD_CELL_SPACING);
                 graphics_fill_rect(ctx, rect, 0, GCornerNone);
             }
-            s_next_field[j][i] = background;
+            s_next_field[j][i] = s_field_bg_color;
         }
     }
 }
