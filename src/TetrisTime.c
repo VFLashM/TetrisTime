@@ -10,6 +10,9 @@
 #define ANIMATION_PERIODS 3
 #define ANIMATION_TIMEOUT_MS 100
 
+#define DYNAMIC_ASSEMBLY 0
+#define BIDIRECTIONAL_SYNC 0
+
 #define STATE_COUNT 5
 
 typedef struct {
@@ -49,7 +52,11 @@ static void state_step(DigitState* state) {
             if (state->vanishing_frame > ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES) {
                 APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
                 state->target_value = state->next_value;
-                reorder_digit(&state->target, &s_digits[state->target_value]);
+                if (DYNAMIC_ASSEMBLY) {
+                    reorder_digit(&state->target, &s_digits[state->target_value]);
+                } else {
+                    state->target = s_digits[state->target_value];
+                }
                 state->current.size = 0;
                 state->falling = 1;
                 state->vanishing_frame = 0;
@@ -280,7 +287,9 @@ static void init() {
     settings_load_persistent();
     app_message_register_inbox_received(in_received_handler);
     app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-    settings_send();
+    if (BIDIRECTIONAL_SYNC) {
+        settings_send();
+    }
     
 #if USE_RAW_DIGITS == 1
     for (int i = 0; i < DIGIT_COUNT; ++i) {
