@@ -31,8 +31,8 @@ static GColor s_bg_color;
 static GColor s_fg_color;
 
 static int s_animating;
-static Window *s_window;
-static Layer *s_layer;
+static Window* s_window;
+static Layer* s_layer;
 
 static DigitState s_states[STATE_COUNT];
 static int s_show_second_dot = 1;
@@ -190,7 +190,7 @@ static void process_animation(void* data) {
 static void main_window_load(Window *window) {
     s_layer = window_get_root_layer(window);
 
-    field_init(s_bg_color);
+    field_reset();
     layer_set_update_proc(s_layer, layer_draw);
 }
 
@@ -254,10 +254,10 @@ static void on_settings_changed() {
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
 
+    field_reset();
     if (s_layer) {
         layer_mark_dirty(s_layer);
     }
-    field_init(s_bg_color);
 }
 
 static void in_received_handler(DictionaryIterator* iter, void* context)
