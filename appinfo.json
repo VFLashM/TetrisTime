@@ -13,7 +13,7 @@
     },
     "appKeys": {
         "VERSION": 0,
-        "DARK_THEME": 1,
+        "LIGHT_THEME": 1,
         "ANIMATE_SECOND_DOT": 2,
         "SPARSE_DIGITS": 3
     },

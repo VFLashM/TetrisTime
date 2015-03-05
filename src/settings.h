@@ -2,7 +2,7 @@
 
 typedef enum {
     VERSION = 0,
-    DARK_THEME,
+    LIGHT_THEME,
     ANIMATE_SECOND_DOT,
     SPARSE_DIGITS,
     MAX_KEY,

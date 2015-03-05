@@ -263,12 +263,12 @@ static void on_settings_changed() {
     }
     s_states[4].offset_x = 15;
 
-    if (s_settings[DARK_THEME]) {
-        s_bg_color = GColorBlack;
-        s_fg_color = GColorWhite;
-    } else {
+    if (s_settings[LIGHT_THEME]) {
         s_bg_color = GColorWhite;
         s_fg_color = GColorBlack;
+    } else {
+        s_bg_color = GColorBlack;
+        s_fg_color = GColorWhite;
     }
 
     tick_timer_service_unsubscribe();
