@@ -28,6 +28,8 @@ typedef struct {
 
     int action_height;
     int vanishing_frame;
+
+    int restricted_spawn_width;
 } DigitState;
 
 static GColor s_bg_color;
@@ -114,7 +116,13 @@ static void state_step(DigitState* state) {
         if (last_y >= (start_y + ANIMATION_SPACING_Y)) {
             TetriminoPos* current_pos = &state->current.tetriminos[state->current.size];
             current_pos->letter = target_letter;
-            current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
+            if (state->restricted_spawn_width) {
+                const int spawn_width = 4;
+                current_pos->x = rand() % (spawn_width - td->size + 1);
+                current_pos->x += (DIGIT_WIDTH - spawn_width) / 2;
+            } else {
+                current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
+            }
             current_pos->y = start_y;
             current_pos->rotation = rand() % 4;
             state->action_height = start_y;
@@ -312,7 +320,8 @@ static void init() {
         s_states[i].next_value = -1;
         s_states[i].target_value = -1;
         s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
-    }  
+    }
+    s_states[4].restricted_spawn_width = 1;
     
     // Create main Window element and assign to pointer
     s_window = window_create();
