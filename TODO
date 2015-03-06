@@ -1,3 +1,11 @@
 configurable animations (timeout/period ticks/periods)
 configurable styles (default/staight/curved)
 configurable dynamic assembly
+
+additions:
+
+date (with month?)
+day of week
+seconds
+connection
+battery
