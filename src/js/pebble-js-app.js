@@ -13,7 +13,7 @@ Pebble.addEventListener("appmessage",
 
 Pebble.addEventListener("showConfiguration",
     function(e) {
-        var url = 'https://www.googledrive.com/host/0B1O5Onb__DjSQTJ4WUFkYWVKeUU'
+        var url = 'https://www.googledrive.com/host/0B1O5Onb__DjSS1pTaVZ5SUJPUjg'
         var options = window.localStorage.getItem("options")
         if (options !== null) {
             options = escape(options)
