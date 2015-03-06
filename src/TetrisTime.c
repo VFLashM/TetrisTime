@@ -257,13 +257,13 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
 }
 
 static void on_settings_changed() {
-    int digits_mode = s_settings[SPARSE_DIGITS];
+    int digits_mode = s_settings[DIGITS_MODE];
     if (digits_mode == 0 && clock_is_24h_style()) {
         digits_mode = 1;
     }
 
     switch (digits_mode) {
-    case 0: // assymmetric
+    case 0: // asymmetric
         s_states[0].offset_x = 0;
         s_states[1].offset_x = 8;
         s_states[2].offset_x = 20;

@@ -4,7 +4,7 @@ typedef enum {
     VERSION = 0,
     LIGHT_THEME,
     ANIMATE_SECOND_DOT,
-    SPARSE_DIGITS,
+    DIGITS_MODE,
     MAX_KEY,
 } SettingsKey;
 
