@@ -346,11 +346,11 @@ static void format_digit_def_struct(const DigitDef* def) {
     APP_LOG(APP_LOG_LEVEL_INFO, "},");
 }
 
-static DigitDef s_digits[DIGIT_COUNT];
+static DigitDef s_digits[DIGIT_COUNT+1];
 
 #else
 
-static DigitDef s_digits[DIGIT_COUNT] = {
+static DigitDef s_digits[DIGIT_COUNT+1] = {
     { 12,
       {
           {'i', 1, -2, 6},
@@ -500,6 +500,7 @@ static DigitDef s_digits[DIGIT_COUNT] = {
           {'o', 0, 2, 2},
       }
     },
+    { 0 },
 };
 
 #endif

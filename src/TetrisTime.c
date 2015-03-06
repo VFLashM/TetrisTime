@@ -215,9 +215,12 @@ static void main_window_unload(Window *window) {
 }
 
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
+    const int clock24 = clock_is_24h_style();
+    
     int digit_values[STATE_COUNT];
     int hour = tick_time->tm_hour;
-    if (!clock_is_24h_style()) {
+    
+    if (!clock24) {
         hour = hour % 12;
         if (hour == 0) {
             hour = 12;
@@ -228,6 +231,10 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     digit_values[2] = tick_time->tm_min / 10;
     digit_values[3] = tick_time->tm_min % 10;
     digit_values[4] = 10;
+
+    if (!clock24 && digit_values[0] == 0) {
+        digit_values[0] = DIGIT_COUNT;
+    }
     
     int changed = 0;
     for (int i = 0; i < STATE_COUNT; ++i) {
@@ -250,18 +257,37 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
 }
 
 static void on_settings_changed() {
-    if (s_settings[SPARSE_DIGITS]) {
-        s_states[0].offset_x = 1;
-        s_states[1].offset_x = 9;
-        s_states[2].offset_x = 21;
-        s_states[3].offset_x = 29;
-    } else {
+    int digits_mode = s_settings[SPARSE_DIGITS];
+    if (digits_mode == 0 && clock_is_24h_style()) {
+        digits_mode = 1;
+    }
+
+    switch (digits_mode) {
+    case 0: // assymmetric
+        s_states[0].offset_x = 0;
+        s_states[1].offset_x = 8;
+        s_states[2].offset_x = 20;
+        s_states[3].offset_x = 28;
+        s_states[4].offset_x = 14;
+        break;
+    default:
+        APP_LOG(APP_LOG_LEVEL_INFO, "Unsupported digit mode");
+        // no break
+    case 1: // dense
         s_states[0].offset_x = 2;
         s_states[1].offset_x = 10;
         s_states[2].offset_x = 20;
         s_states[3].offset_x = 28;
+        s_states[4].offset_x = 15;
+        break;
+    case 2: // sparse
+        s_states[0].offset_x = 1;
+        s_states[1].offset_x = 9;
+        s_states[2].offset_x = 21;
+        s_states[3].offset_x = 29;
+        s_states[4].offset_x = 15;
+        break;
     }
-    s_states[4].offset_x = 15;
 
     if (s_settings[LIGHT_THEME]) {
         s_bg_color = GColorWhite;
