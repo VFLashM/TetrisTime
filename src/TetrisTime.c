@@ -112,7 +112,7 @@ static void state_step(DigitState* state) {
         const char target_letter = state->target.tetriminos[state->current.size].letter;
         const TetriminoDef* td = get_tetrimino_def(target_letter);
 
-        const int start_y = DIGIT_HEIGHT - FIELD_HEIGHT - td->size + 1;
+        const int start_y = -state->offset_y - td->size + 1;
         if (last_y >= (start_y + ANIMATION_SPACING_Y)) {
             TetriminoPos* current_pos = &state->current.tetriminos[state->current.size];
             current_pos->letter = target_letter;
@@ -346,7 +346,7 @@ static void init() {
     for (int i = 0; i < STATE_COUNT; ++i) {
         s_states[i].next_value = -1;
         s_states[i].target_value = -1;
-        s_states[i].offset_y = FIELD_HEIGHT - DIGIT_HEIGHT;
+        s_states[i].offset_y = 16;
     }
     s_states[4].restricted_spawn_width = 1;
     
