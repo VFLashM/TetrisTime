@@ -9,3 +9,10 @@ day of week
 seconds
 connection
 battery
+option to disable starting animation
+
+optimizations:
+
+baked tetriminos
+palette rendering
+tracking rendering
