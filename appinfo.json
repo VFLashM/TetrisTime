@@ -13,7 +13,8 @@
         "VERSION": 0,
         "LIGHT_THEME": 1,
         "ANIMATE_SECOND_DOT": 2,
-        "DIGITS_MODE": 3
+        "DIGITS_MODE": 3,
+        "DATE_FORMAT": 4
     },
     "resources": {
         "media": [

@@ -1,5 +1,6 @@
 #define MONTH_WIDTH 13
 #define BMP_DIGIT_WIDTH 4
+#define WEEKDAY_WIDTH 9
 
 typedef struct {
     int width;
@@ -211,6 +212,71 @@ static Bitmap s_bmp_digits[10] = {
     },
 };
 
+static Bitmap s_weekdays[7] = {
+    {
+        WEEKDAY_WIDTH, 6,
+        " ##      "
+        "#  # #  #"
+        " #   #  #"
+        "  #  #  #"
+        "#  # #  #"
+        " ##   ## "
+    },
+    {
+        WEEKDAY_WIDTH, 6,
+        "#   #    "
+        "## ##  # "
+        "# # # # #"
+        "#   # # #"
+        "#   # # #"
+        "#   #  # "
+    },
+    {
+        WEEKDAY_WIDTH, 6,
+        "#####    "
+        "  #  #  #"
+        "  #  #  #"
+        "  #  #  #"
+        "  #  #  #"
+        "  #   ## "
+    },
+    {
+        WEEKDAY_WIDTH, 6,
+        "#   #    "
+        "#   # ###"
+        "#   # #  "
+        "# # # ## "
+        "# # # #  "
+        " # #  ###"
+    },
+    {
+        WEEKDAY_WIDTH, 6,
+        "#####    "
+        "  #  #   "
+        "  #  #   "
+        "  #  ### "
+        "  #  #  #"
+        "  #  #  #"
+    },
+    {
+        WEEKDAY_WIDTH, 6,
+        "####     "
+        "#    ### "
+        "###  #  #"
+        "#    ### "
+        "#    #  #"
+        "#    #  #"
+    },
+    {
+        WEEKDAY_WIDTH, 6,
+        " ##      "
+        "#  #  ## "
+        " #   #  #"
+        "  #  ####"
+        "#  # #  #"
+        " ##  #  #"
+    },
+};
 
 static void draw_bitmap(const Bitmap* bmp, int x, int y, PaletteColor color) {
     int yoffset = 0;

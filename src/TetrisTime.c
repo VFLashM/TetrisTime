@@ -2,6 +2,9 @@
 #include "digit.h"
 #include "field.h"
 #include "settings.h"
+#include "bitmap.h"
+
+#define DATE_SPACING 2
 
 #define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
 #define ANIMATION_PERIOD_INVIS_FRAMES 1
@@ -32,6 +35,10 @@ typedef struct {
     int restricted_spawn_width;
 } DigitState;
 
+static int s_month;
+static int s_day;
+static int s_weekday;
+
 static PaletteColor s_bg_color;
 static PaletteColor s_fg_color;
 
@@ -41,12 +48,6 @@ static Layer* s_layer;
 
 static DigitState s_states[STATE_COUNT];
 static int s_show_second_dot = 1;
-
-/*
-static int randrange(int from, int to) {
-    return rand() % (to - from) + from;
-}
-*/
 
 static void state_step(DigitState* state) {
     if (!state->falling) {
@@ -141,6 +142,54 @@ static void state_step(DigitState* state) {
     }
 }
 
+static void draw_date() {
+    const char datefmt = s_settings[DATE_FORMAT];
+    if (!datefmt) {
+        return;
+    }
+    
+    const int height = 0;
+
+    // digit
+    int width = BMP_DIGIT_WIDTH;
+    if (s_day >= 10) {
+        width += 1 + BMP_DIGIT_WIDTH;
+    }
+
+    // month
+    if (datefmt & (DATEFMT_HAS_MONTH_BEFORE_DAY | DATEFMT_HAS_MONTH_AFTER_DAY)) {
+        width += MONTH_WIDTH + DATE_SPACING;
+    }
+
+    // wd
+    if (datefmt & DATEFMT_HAS_WD) {
+        width += WEEKDAY_WIDTH + DATE_SPACING;
+    }
+    
+    int offset = (FIELD_WIDTH - width) / 2;
+    
+    // weekday
+    if (datefmt & DATEFMT_HAS_WD) {
+        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, COLOR_WHITE, DATE_SPACING);
+    }
+
+    // month before
+    if (datefmt & DATEFMT_HAS_MONTH_BEFORE_DAY) {
+        draw_bitmap_move(&offset, &s_months[s_month], height, COLOR_WHITE, DATE_SPACING);
+    }
+
+    // date
+    if (s_day >= 10) {
+        draw_bitmap_move(&offset, &s_bmp_digits[s_day / 10], height, COLOR_WHITE, 1);
+    }
+    draw_bitmap_move(&offset, &s_bmp_digits[s_day % 10], height, COLOR_WHITE, DATE_SPACING);
+
+    // month after
+    if (datefmt & DATEFMT_HAS_MONTH_AFTER_DAY) {
+        draw_bitmap_move(&offset, &s_months[s_month], height, COLOR_WHITE, DATE_SPACING);
+    }
+}
+
 static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y) {
     const TetriminoDef* td = get_tetrimino_def(tp->letter); 
     const TetriminoMask* tm = &td->rotations[tp->rotation];
@@ -179,6 +228,7 @@ static void layer_draw(Layer* layer, GContext* ctx) {
     if (s_show_second_dot || s_states[4].falling || s_states[4].vanishing_frame) {
         draw_digit_state(&s_states[4]);
     }
+    draw_date();
     field_flush(layer, ctx);
 }
 
@@ -245,6 +295,10 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
             changed = 1;
         }
     }
+
+    s_month = tick_time->tm_mon;
+    s_day = tick_time->tm_mday;
+    s_weekday = tick_time->tm_wday;
 
     if (changed && !s_animating) {
         process_animation(NULL);
