@@ -1,3 +1,4 @@
+#define BMP_HEIGHT 6
 #define MONTH_WIDTH 13
 #define BMP_DIGIT_WIDTH 4
 #define WEEKDAY_WIDTH 9
@@ -10,7 +11,7 @@ typedef struct {
 
 static Bitmap s_months[12] = {
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "   #         "
         "   #  #  #  #"
         "   # # # ## #"
@@ -19,7 +20,7 @@ static Bitmap s_months[12] = {
         " ##  # # #  #"
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "####         "
         "#    ### ### "
         "###  #   #  #"
@@ -28,7 +29,7 @@ static Bitmap s_months[12] = {
         "#    ### ### "
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "#   #        "
         "## ##  #  ## "
         "# # # # # # #"
@@ -37,7 +38,7 @@ static Bitmap s_months[12] = {
         "#   # # # # #"
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         " ##          "
         "#  # ###  ## "
         "#  # #  # # #"
@@ -46,7 +47,7 @@ static Bitmap s_months[12] = {
         "#  # #    # #"
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "#   #        "
         "## ##  #  # #"
         "# # # # # # #"
@@ -55,7 +56,7 @@ static Bitmap s_months[12] = {
         "#   # # #  # "
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "   #         "
         "   # # # #  #"
         "   # # # ## #"
@@ -64,7 +65,7 @@ static Bitmap s_months[12] = {
         " ##   #  #  #"
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "   #         "
         "   # #  # #  "
         "   # #  # #  "
@@ -73,7 +74,7 @@ static Bitmap s_months[12] = {
         " ##   ##  ###"
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         " ##          "
         "#  # # #  ## "
         "#  # # # #  #"
@@ -82,7 +83,7 @@ static Bitmap s_months[12] = {
         "#  #  #   ###"
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         " ##          "
         "#  # ### ### "
         " #   #   #  #"
@@ -91,7 +92,7 @@ static Bitmap s_months[12] = {
         " ##  ### #   "
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         " ##          "
         "#  #  ##  ###"
         "#  # #  #  # "
@@ -100,7 +101,7 @@ static Bitmap s_months[12] = {
         " ##   ##   # "
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "#  #         "
         "## #  ##  # #"
         "## # #  # # #"
@@ -109,7 +110,7 @@ static Bitmap s_months[12] = {
         "#  #  ##   # "
     },
     {
-        MONTH_WIDTH, 6,
+        MONTH_WIDTH, BMP_HEIGHT,
         "###          "
         "#  # ###  ## "
         "#  # #   #  #"
@@ -121,7 +122,7 @@ static Bitmap s_months[12] = {
 
 static Bitmap s_bmp_digits[10] = {
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
         "#  #"
         "#  #"
@@ -130,7 +131,7 @@ static Bitmap s_bmp_digits[10] = {
         " ## "
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         "  # "
         " ## "
         "  # "
@@ -139,7 +140,7 @@ static Bitmap s_bmp_digits[10] = {
         " ###"
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
         "#  #"
         "   #"
@@ -148,7 +149,7 @@ static Bitmap s_bmp_digits[10] = {
         "####"
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
         "#  #"
         "  # "
@@ -157,7 +158,7 @@ static Bitmap s_bmp_digits[10] = {
         " ## "
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         "#  #"
         "#  #"
         "####"
@@ -166,7 +167,7 @@ static Bitmap s_bmp_digits[10] = {
         "   #"
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         "####"
         "#   "
         "### "
@@ -175,7 +176,7 @@ static Bitmap s_bmp_digits[10] = {
         "### "
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
         "#   "
         "### "
@@ -184,7 +185,7 @@ static Bitmap s_bmp_digits[10] = {
         " ## "
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         "####"
         "   #"
         "  # "
@@ -193,7 +194,7 @@ static Bitmap s_bmp_digits[10] = {
         "  # "
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
         "#  #"
         " ## "
@@ -202,7 +203,7 @@ static Bitmap s_bmp_digits[10] = {
         " ## "
     },
     {
-        BMP_DIGIT_WIDTH, 6,
+        BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
         "#  #"
         "#  #"
@@ -214,7 +215,7 @@ static Bitmap s_bmp_digits[10] = {
 
 static Bitmap s_weekdays[7] = {
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         " ##      "
         "#  # #  #"
         " #   #  #"
@@ -223,7 +224,7 @@ static Bitmap s_weekdays[7] = {
         " ##   ## "
     },
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         "#   #    "
         "## ##  # "
         "# # # # #"
@@ -232,7 +233,7 @@ static Bitmap s_weekdays[7] = {
         "#   #  # "
     },
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         "#####    "
         "  #  #  #"
         "  #  #  #"
@@ -241,7 +242,7 @@ static Bitmap s_weekdays[7] = {
         "  #   ## "
     },
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         "#   #    "
         "#   # ###"
         "#   # #  "
@@ -250,7 +251,7 @@ static Bitmap s_weekdays[7] = {
         " # #  ###"
     },
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         "#####    "
         "  #  #   "
         "  #  #   "
@@ -259,7 +260,7 @@ static Bitmap s_weekdays[7] = {
         "  #  #  #"
     },
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         "####     "
         "#    ### "
         "###  #  #"
@@ -268,7 +269,7 @@ static Bitmap s_weekdays[7] = {
         "#    #  #"
     },
     {
-        WEEKDAY_WIDTH, 6,
+        WEEKDAY_WIDTH, BMP_HEIGHT,
         " ##      "
         "#  #  ## "
         " #   #  #"

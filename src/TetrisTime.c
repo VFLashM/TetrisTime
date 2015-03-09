@@ -166,11 +166,15 @@ static void draw_date() {
         width += WEEKDAY_WIDTH + DATE_SPACING;
     }
     
-    int offset = (FIELD_WIDTH - width) / 2;
+    int offset = (FIELD_WIDTH - width + 1) / 2;
     
     // weekday
     if (datefmt & DATEFMT_HAS_WD) {
         draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, COLOR_WHITE, DATE_SPACING);
+        if (datefmt & (DATEFMT_HAS_MONTH_BEFORE_DAY | DATEFMT_HAS_MONTH_AFTER_DAY)) {
+            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT - 1, COLOR_WHITE);
+            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT, COLOR_WHITE);
+        }
     }
 
     // month before
