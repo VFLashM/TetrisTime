@@ -32,8 +32,8 @@ typedef struct {
     int restricted_spawn_width;
 } DigitState;
 
-static GColor s_bg_color;
-static GColor s_fg_color;
+static PaletteColor s_bg_color;
+static PaletteColor s_fg_color;
 
 static int s_animating;
 static Window* s_window;
@@ -290,11 +290,11 @@ static void on_settings_changed() {
     }
 
     if (s_settings[LIGHT_THEME]) {
-        s_bg_color = GColorWhite;
-        s_fg_color = GColorBlack;
+        s_bg_color = COLOR_WHITE;
+        s_fg_color = COLOR_BLACK;
     } else {
-        s_bg_color = GColorBlack;
-        s_fg_color = GColorWhite;
+        s_bg_color = COLOR_BLACK;
+        s_fg_color = COLOR_WHITE;
     }
 
     tick_timer_service_unsubscribe();
