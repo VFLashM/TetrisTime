@@ -146,7 +146,7 @@ static void state_step(DigitState* state) {
 }
 
 static void draw_weekday_line(int height, PaletteColor color) {
-    const Bitmap* bmp = &s_weekdays[s_weekday];
+    const Bitmap* bmp = &s_weekdays_long[s_weekday];
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width) / 2, height, color);
 }
 
