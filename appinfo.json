@@ -14,7 +14,9 @@
         "LIGHT_THEME": 1,
         "ANIMATE_SECOND_DOT": 2,
         "DIGITS_MODE": 3,
-        "DATE_FORMAT": 4
+        "DATE_MODE": 4,
+        "DATE_MONTH_FORMAT": 5,
+        "DATE_WEEKDAY_FORMAT": 6
     },
     "resources": {
         "media": [

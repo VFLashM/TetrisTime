@@ -17,6 +17,9 @@
 #define BIDIRECTIONAL_SYNC 0
 
 #define STATE_COUNT 5
+#define TIME_TO_SPLIT_SPACING 2
+#define SPLIT_TO_DATE_SPACING 2
+#define DATE_LINE_SPACING 1
 
 typedef struct {
     int offset_x;
@@ -142,13 +145,15 @@ static void state_step(DigitState* state) {
     }
 }
 
-static void draw_date() {
-    const char datefmt = s_settings[DATE_FORMAT];
-    if (!datefmt) {
-        return;
-    }
-    
-    const int height = 0;
+static void draw_weekday_line(int height, PaletteColor color) {
+    const Bitmap* bmp = &s_weekdays[s_weekday];
+    draw_bitmap(bmp, (FIELD_WIDTH - bmp->width) / 2, height, color);
+}
+
+static void draw_date_line(int height, PaletteColor color) {
+    const DateMonthFormat dmf = s_settings[DATE_MONTH_FORMAT];
+    const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
+    const int same_line_wd = dwf == DWF_SAME_LINE_WITH_COMMA || dwf == DWF_SAME_LINE_NO_COMMA;
 
     // digit
     int width = BMP_DIGIT_WIDTH;
@@ -157,40 +162,77 @@ static void draw_date() {
     }
 
     // month
-    if (datefmt & (DATEFMT_HAS_MONTH_BEFORE_DAY | DATEFMT_HAS_MONTH_AFTER_DAY)) {
+    if (dmf != DMF_NO_MONTH) {
         width += MONTH_WIDTH + DATE_SPACING;
     }
 
     // wd
-    if (datefmt & DATEFMT_HAS_WD) {
+    if (same_line_wd) {
         width += WEEKDAY_WIDTH + DATE_SPACING;
     }
-    
+
     int offset = (FIELD_WIDTH - width + 1) / 2;
     
     // weekday
-    if (datefmt & DATEFMT_HAS_WD) {
-        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, COLOR_WHITE, DATE_SPACING);
-        if (datefmt & (DATEFMT_HAS_MONTH_BEFORE_DAY | DATEFMT_HAS_MONTH_AFTER_DAY)) {
-            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT - 1, COLOR_WHITE);
-            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT, COLOR_WHITE);
+    if (same_line_wd) {
+        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, color, DATE_SPACING);
+        if (dwf == DWF_SAME_LINE_WITH_COMMA) {
+            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT - 1, color);
+            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT, color);
         }
     }
 
     // month before
-    if (datefmt & DATEFMT_HAS_MONTH_BEFORE_DAY) {
-        draw_bitmap_move(&offset, &s_months[s_month], height, COLOR_WHITE, DATE_SPACING);
+    if (dmf == DMF_MONTH_BEFORE) {
+        draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
     }
 
     // date
     if (s_day >= 10) {
-        draw_bitmap_move(&offset, &s_bmp_digits[s_day / 10], height, COLOR_WHITE, 1);
+        draw_bitmap_move(&offset, &s_bmp_digits[s_day / 10], height, color, 1);
     }
-    draw_bitmap_move(&offset, &s_bmp_digits[s_day % 10], height, COLOR_WHITE, DATE_SPACING);
+    draw_bitmap_move(&offset, &s_bmp_digits[s_day % 10], height, color, DATE_SPACING);
 
     // month after
-    if (datefmt & DATEFMT_HAS_MONTH_AFTER_DAY) {
-        draw_bitmap_move(&offset, &s_months[s_month], height, COLOR_WHITE, DATE_SPACING);
+    if (dmf == DMF_MONTH_AFTER) {
+        draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
+    }
+}
+
+static void draw_date() {
+    const DateMode dm = s_settings[DATE_MODE];
+    if (dm == DM_NONE) {
+        return;
+    }
+    
+    const int split_height = s_states[0].offset_y + DIGIT_HEIGHT + TIME_TO_SPLIT_SPACING;
+
+    PaletteColor date_color;
+    if (dm == DM_INVERTED) {
+        date_color = s_bg_color;
+        for (int j = split_height; j < FIELD_HEIGHT; ++j) {
+            for (int i = 0; i < FIELD_WIDTH; ++i) {
+                field_draw(i, j, s_fg_color);
+            }
+        }
+    } else {
+        date_color = s_fg_color;
+    }
+    
+    const int first_line_height = split_height + SPLIT_TO_DATE_SPACING;
+    const int second_line_height = first_line_height + BMP_HEIGHT + DATE_LINE_SPACING;
+    const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
+    
+    switch(dwf) {
+    case DWF_FIRST_LINE:
+        draw_date_line(second_line_height, date_color);
+        draw_weekday_line(first_line_height, date_color);
+        break;
+    case DWF_SECOND_LINE:
+        draw_date_line(first_line_height, date_color);
+        draw_weekday_line(second_line_height, date_color);
+    default:
+        draw_date_line(first_line_height, date_color);
     }
 }
 
@@ -316,12 +358,12 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
 
 static void on_settings_changed() {
     int digits_mode = s_settings[DIGITS_MODE];
-    if (digits_mode == 0 && clock_is_24h_style()) {
-        digits_mode = 1;
+    if (digits_mode == DM_ASYMMETRIC && clock_is_24h_style()) {
+        digits_mode = DM_DENSE;
     }
 
     switch (digits_mode) {
-    case 0: // asymmetric
+    case DM_ASYMMETRIC:
         s_states[0].offset_x = 0;
         s_states[1].offset_x = 8;
         s_states[2].offset_x = 20;
@@ -331,20 +373,33 @@ static void on_settings_changed() {
     default:
         APP_LOG(APP_LOG_LEVEL_INFO, "Unsupported digit mode");
         // no break
-    case 1: // dense
+    case DM_DENSE:
         s_states[0].offset_x = 2;
         s_states[1].offset_x = 10;
         s_states[2].offset_x = 20;
         s_states[3].offset_x = 28;
         s_states[4].offset_x = 15;
         break;
-    case 2: // sparse
+    case DM_SPARSE:
         s_states[0].offset_x = 1;
         s_states[1].offset_x = 9;
         s_states[2].offset_x = 21;
         s_states[3].offset_x = 29;
         s_states[4].offset_x = 15;
         break;
+    }
+
+    int offset_y;
+    switch (s_settings[DATE_MODE]) {
+    case DM_NONE:
+        offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2; // center time
+        break;
+    default:
+        offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2 - 3; // balance time/date things
+        break;
+    }
+    for (int i = 0; i < STATE_COUNT; ++i) {
+        s_states[i].offset_y = offset_y;
     }
 
     if (s_settings[LIGHT_THEME]) {
@@ -404,7 +459,6 @@ static void init() {
     for (int i = 0; i < STATE_COUNT; ++i) {
         s_states[i].next_value = -1;
         s_states[i].target_value = -1;
-        s_states[i].offset_y = 16;
     }
     s_states[4].restricted_spawn_width = 1;
     

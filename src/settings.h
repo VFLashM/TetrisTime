@@ -5,25 +5,39 @@ typedef enum {
     LIGHT_THEME,
     ANIMATE_SECOND_DOT,
     DIGITS_MODE,
-    DATE_FORMAT,
+
+    DATE_MODE,
+    DATE_MONTH_FORMAT,
+    DATE_WEEKDAY_FORMAT,
+    
     MAX_KEY,
 } SettingsKey;
 
 typedef enum {
-    DATEFMT_HAS_MONTH_BEFORE_DAY = 1,
-    DATEFMT_HAS_MONTH_AFTER_DAY  = 2,
-    DATEFMT_HAS_WD               = 4,
-    DATEFMT_HAS_MONTH_FIRST      = 8,
-} DateFormatFlags;
+    DM_ASYMMETRIC,
+    DM_DENSE,
+    DM_SPARSE,
+} DigitsMode;
 
 typedef enum {
-    DATEFMT_NONE         = 0,
-    DATEFMT_MONTH_DAY    = DATEFMT_HAS_MONTH_BEFORE_DAY,
-    DATEFMT_DAY_MONTH    = DATEFMT_HAS_MONTH_AFTER_DAY,
-    DATEFMT_WD_DAY       = DATEFMT_HAS_WD,
-    DATEFMT_WD_MONTH_DAY = DATEFMT_HAS_WD | DATEFMT_HAS_MONTH_BEFORE_DAY,
-    DATEFMT_WD_DAY_MONTH = DATEFMT_HAS_WD | DATEFMT_HAS_MONTH_AFTER_DAY,
-} DateFormat;
+    DM_INVERTED,
+    DM_SAME_COLOR,
+    DM_NONE,
+} DateMode;
+
+typedef enum {
+    DMF_MONTH_BEFORE,
+    DMF_MONTH_AFTER,
+    DMF_NO_MONTH,
+} DateMonthFormat;
+
+typedef enum {
+    DWF_FIRST_LINE,
+    DWF_SECOND_LINE,
+    DWF_SAME_LINE_WITH_COMMA,
+    DWF_SAME_LINE_NO_COMMA,
+    DWF_NO_WEEKDAY,
+} DateWeekdayFormat;
 
 typedef int Settings[MAX_KEY];
 
