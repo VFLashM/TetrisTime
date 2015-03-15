@@ -19,6 +19,7 @@
 #define ANIMATION_PERIOD_FRAMES (ANIMATION_PERIOD_INVIS_FRAMES + ANIMATION_PERIOD_VIS_FRAMES)
 #define ANIMATION_PERIODS 3
 #define ANIMATION_TIMEOUT_MS 100
+#define ANIMATION_DATE_FRAMES 5
 
 // datetime format settings
 #define TIME_TO_SPLIT_SPACING 2
@@ -43,19 +44,24 @@ typedef struct {
     int restricted_spawn_width;
 } DigitState;
 
+// time state
+static int s_show_second_dot = 1;
 static int s_month;
 static int s_day;
 static int s_weekday;
 
+// color state
 static PaletteColor s_bg_color;
 static PaletteColor s_fg_color;
 
+// pebbele infrastructure
 static int s_animating;
 static Window* s_window;
 static Layer* s_layer;
 
+// digit states
 static DigitState s_states[STATE_COUNT];
-static int s_show_second_dot = 1;
+static int s_date_frame;
 
 static const int s_time_date_offsets[DWF_MAX] = { -3, -4, -2 };
 
@@ -216,13 +222,17 @@ static void draw_date_line(int height, PaletteColor color) {
     }
 }
 
+static int get_final_date_split_height() {
+    return s_states[0].offset_y + DIGIT_HEIGHT + TIME_TO_SPLIT_SPACING;
+}
+
 static void draw_date() {
     const DateMode dm = s_settings[DATE_MODE];
     if (dm == DM_NONE) {
         return;
     }
     
-    const int split_height = s_states[0].offset_y + DIGIT_HEIGHT + TIME_TO_SPLIT_SPACING;
+    const int split_height = get_final_date_split_height() + (s_date_frame + ANIMATION_DATE_FRAMES - 1) / ANIMATION_DATE_FRAMES;
 
     PaletteColor date_color;
     if (dm == DM_INVERTED) {
@@ -295,6 +305,17 @@ static void layer_draw(Layer* layer, GContext* ctx) {
     field_flush(layer, ctx);
 }
 
+static int is_animating() {
+    if (s_date_frame) {
+        return 1;
+    }
+    for (int i = 0; i < STATE_COUNT; ++i) {
+        if (s_states[i].falling || s_states[i].vanishing_frame) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 static void process_animation(void* data) {
     /*
@@ -304,17 +325,18 @@ static void process_animation(void* data) {
     */
     
     s_animating = 1;
+    if (s_date_frame) {
+        s_date_frame -= 1;
+    }
     for (int i = 0; i < STATE_COUNT; ++i) {
         state_step(&s_states[i]);
     }
     layer_mark_dirty(s_layer);
-    for (int i = 0; i < STATE_COUNT; ++i) {
-        if (s_states[i].falling || s_states[i].vanishing_frame) {
-            app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
-            return;
-        }
+    if (is_animating()) {
+        app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
+    } else {
+        s_animating = 0;
     }
-    s_animating = 0;
 }
 
 static void main_window_load(Window *window) {
@@ -422,6 +444,8 @@ static void on_settings_changed() {
         s_bg_color = COLOR_BLACK;
         s_fg_color = COLOR_WHITE;
     }
+
+    s_date_frame = (FIELD_HEIGHT - get_final_date_split_height()) * ANIMATION_DATE_FRAMES;
 
     tick_timer_service_unsubscribe();
     if (s_settings[ANIMATE_SECOND_DOT]) {
