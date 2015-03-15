@@ -4,7 +4,7 @@
 #include "settings.h"
 #include "bitmap.h"
 
-#define DATE_SPACING 2
+
 
 #define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
 #define ANIMATION_PERIOD_INVIS_FRAMES 1
@@ -19,6 +19,8 @@
 #define STATE_COUNT 5
 #define TIME_TO_SPLIT_SPACING 2
 #define SPLIT_TO_DATE_SPACING 2
+
+#define DATE_SPACING 2
 #define DATE_LINE_SPACING 2
 
 typedef struct {
@@ -148,7 +150,7 @@ static void state_step(DigitState* state) {
 }
 
 static void draw_weekday_line(int height, PaletteColor color) {
-    const Bitmap* bmp = &s_weekdays_long[s_weekday];
+    const Bitmap* bmp = &s_weekdays[s_weekday];
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
 }
 
@@ -156,12 +158,12 @@ static void draw_weekday_markers_line(int height, PaletteColor color) {
     int width = 0;
     for (int i = 0; i < 7; ++i) {
         const int bmp_idx = (i == s_weekday) ? i : 7;
-        width += s_weekday_markers[bmp_idx].width;
+        width += s_marked_weekdays[bmp_idx].width;
     }
     int offset = (FIELD_WIDTH - width + 1) / 2;
     for (int i = 0; i < 7; ++i) {
         const int bmp_idx = (i == s_weekday) ? i : 7;
-        draw_bitmap_move(&offset, &s_weekday_markers[bmp_idx], height, color, 0);
+        draw_bitmap_move(&offset, &s_marked_weekdays[bmp_idx], height, color, 0);
     }
 }
 
@@ -175,8 +177,17 @@ static void draw_date_line(int height, PaletteColor color) {
     }
 
     // month
-    if (dmf != DMF_NO_MONTH) {
-        width += MONTH_WIDTH + DATE_SPACING;
+    switch (dmf) {
+    case DMF_MONTH_BEFORE:
+    case DMF_MONTH_AFTER:
+        width += s_months[s_month].width + DATE_SPACING;
+        break;
+    case DMF_WEEKDAY_BEFORE:
+    case DMF_WEEKDAY_AFTER:
+        width += s_weekdays[s_weekday].width + DATE_SPACING;
+        break;
+    default:
+        break;
     }
 
     int offset = (FIELD_WIDTH - width + 1) / 2;
@@ -184,6 +195,8 @@ static void draw_date_line(int height, PaletteColor color) {
     // month before
     if (dmf == DMF_MONTH_BEFORE) {
         draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
+    } else if (dmf == DMF_WEEKDAY_BEFORE) {
+        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, color, DATE_SPACING);
     }
 
     // date
@@ -195,6 +208,8 @@ static void draw_date_line(int height, PaletteColor color) {
     // month after
     if (dmf == DMF_MONTH_AFTER) {
         draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
+    } else if (dmf == DMF_WEEKDAY_AFTER) {
+        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, color, DATE_SPACING);
     }
 }
 
@@ -221,7 +236,7 @@ static void draw_date() {
     const int first_line_height = split_height + SPLIT_TO_DATE_SPACING;
     const int second_line_height = first_line_height + BMP_HEIGHT + DATE_LINE_SPACING;
     const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
-
+    
     draw_date_line(first_line_height, date_color);
     switch(dwf) {
     case DWF_MARKED:
@@ -391,8 +406,7 @@ static void on_settings_changed() {
 
     int offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2;
     if (s_settings[DATE_MODE] != DM_NONE) {
-        const int dwf = s_settings[DATE_WEEKDAY_FORMAT] % DWF_MAX;
-        offset_y += s_time_date_offsets[dwf];
+        offset_y += s_time_date_offsets[s_settings[DATE_WEEKDAY_FORMAT]];
     }
     for (int i = 0; i < STATE_COUNT; ++i) {
         s_states[i].offset_y = offset_y;

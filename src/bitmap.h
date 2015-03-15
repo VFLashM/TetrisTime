@@ -1,7 +1,6 @@
 #define BMP_HEIGHT 6
 #define MONTH_WIDTH 13
 #define BMP_DIGIT_WIDTH 4
-#define WEEKDAY_WIDTH 9
 
 typedef struct {
     int width;
@@ -213,7 +212,7 @@ static Bitmap s_bmp_digits[10] = {
     },
 };
 
-static Bitmap s_weekday_markers[8] = {
+static Bitmap s_marked_weekdays[8] = {
     { 6, 5,
       "  ### "
       " #    "
@@ -273,72 +272,6 @@ static Bitmap s_weekday_markers[8] = {
 };
 
 static Bitmap s_weekdays[7] = {
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        " ##      "
-        "#  # #  #"
-        " #   #  #"
-        "  #  #  #"
-        "#  # #  #"
-        " ##   ## "
-    },
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        "#   #    "
-        "## ##  # "
-        "# # # # #"
-        "#   # # #"
-        "#   # # #"
-        "#   #  # "
-    },
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        "#####    "
-        "  #  #  #"
-        "  #  #  #"
-        "  #  #  #"
-        "  #  #  #"
-        "  #   ## "
-    },
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        "#   #    "
-        "#   # ###"
-        "#   # #  "
-        "# # # ## "
-        "# # # #  "
-        " # #  ###"
-    },
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        "#####    "
-        "  #  #   "
-        "  #  #   "
-        "  #  ### "
-        "  #  #  #"
-        "  #  #  #"
-    },
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        "####     "
-        "#    ### "
-        "###  #  #"
-        "#    ### "
-        "#    #  #"
-        "#    #  #"
-    },
-    {
-        WEEKDAY_WIDTH, BMP_HEIGHT,
-        " ##      "
-        "#  #  ## "
-        " #   #  #"
-        "  #  ####"
-        "#  # #  #"
-        " ##  #  #"
-    },
-};
-
-static Bitmap s_weekdays_long[7] = {
     {
         14, BMP_HEIGHT,
         " ##           "

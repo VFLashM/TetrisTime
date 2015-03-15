@@ -76,22 +76,24 @@
       <label for="DATE_MODE_2">No date</label>
     </p>
     <p>
-      <h3>Date format</h3>
+      <h3>Date first line format</h3>
       <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_0" value="0" checked="checked" type="radio">
-      <label for="DATE_MONTH_FORMAT_0">Month before day</label>
+      <label for="DATE_MONTH_FORMAT_0">Month and day</label>
       <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_1" value="1" type="radio">
-      <label for="DATE_MONTH_FORMAT_1">Day before month</label>
+      <label for="DATE_MONTH_FORMAT_1">Day and month</label>
       <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_2" value="2" type="radio">
-      <label for="DATE_MONTH_FORMAT_2">No month</label>
+      <label for="DATE_MONTH_FORMAT_2">Weekday and day</label>
+      <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_3" value="3" type="radio">
+      <label for="DATE_MONTH_FORMAT_3">Day and weekday</label>
     </p>
     <p>
-      <h3>Weekday mode</h3>
+      <h3>Date second line format</h3>
       <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_0" value="0" checked="checked" type="radio">
       <label for="DATE_WEEKDAY_FORMAT_0">Marked weekday</label>
       <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_1" value="1" type="radio">
       <label for="DATE_WEEKDAY_FORMAT_1">Text weekday</label>
       <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_2" value="2" type="radio">
-      <label for="DATE_WEEKDAY_FORMAT_2">No weekday</label>
+      <label for="DATE_WEEKDAY_FORMAT_2">Empty</label>
     </p>
     <p>
       <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
