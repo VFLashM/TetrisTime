@@ -32,11 +32,10 @@ typedef enum {
 } DateMonthFormat;
 
 typedef enum {
-    DWF_FIRST_LINE,
-    DWF_SECOND_LINE,
-    DWF_SAME_LINE_WITH_COMMA,
-    DWF_SAME_LINE_NO_COMMA,
+    DWF_MARKED,
+    DWF_TEXT,
     DWF_NO_WEEKDAY,
+    DWF_MAX,
 } DateWeekdayFormat;
 
 typedef int Settings[MAX_KEY];

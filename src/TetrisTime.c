@@ -19,7 +19,7 @@
 #define STATE_COUNT 5
 #define TIME_TO_SPLIT_SPACING 2
 #define SPLIT_TO_DATE_SPACING 2
-#define DATE_LINE_SPACING 1
+#define DATE_LINE_SPACING 2
 
 typedef struct {
     int offset_x;
@@ -51,6 +51,8 @@ static Layer* s_layer;
 
 static DigitState s_states[STATE_COUNT];
 static int s_show_second_dot = 1;
+
+static const int s_time_date_offsets[DWF_MAX] = { -3, -4, -2 };
 
 static void state_step(DigitState* state) {
     if (!state->falling) {
@@ -147,14 +149,25 @@ static void state_step(DigitState* state) {
 
 static void draw_weekday_line(int height, PaletteColor color) {
     const Bitmap* bmp = &s_weekdays_long[s_weekday];
-    draw_bitmap(bmp, (FIELD_WIDTH - bmp->width) / 2, height, color);
+    draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
+}
+
+static void draw_weekday_markers_line(int height, PaletteColor color) {
+    int width = 0;
+    for (int i = 0; i < 7; ++i) {
+        const int bmp_idx = (i == s_weekday) ? i : 7;
+        width += s_weekday_markers[bmp_idx].width;
+    }
+    int offset = (FIELD_WIDTH - width + 1) / 2;
+    for (int i = 0; i < 7; ++i) {
+        const int bmp_idx = (i == s_weekday) ? i : 7;
+        draw_bitmap_move(&offset, &s_weekday_markers[bmp_idx], height, color, 0);
+    }
 }
 
 static void draw_date_line(int height, PaletteColor color) {
     const DateMonthFormat dmf = s_settings[DATE_MONTH_FORMAT];
-    const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
-    const int same_line_wd = dwf == DWF_SAME_LINE_WITH_COMMA || dwf == DWF_SAME_LINE_NO_COMMA;
-
+    
     // digit
     int width = BMP_DIGIT_WIDTH;
     if (s_day >= 10) {
@@ -166,22 +179,8 @@ static void draw_date_line(int height, PaletteColor color) {
         width += MONTH_WIDTH + DATE_SPACING;
     }
 
-    // wd
-    if (same_line_wd) {
-        width += WEEKDAY_WIDTH + DATE_SPACING;
-    }
-
     int offset = (FIELD_WIDTH - width + 1) / 2;
     
-    // weekday
-    if (same_line_wd) {
-        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, color, DATE_SPACING);
-        if (dwf == DWF_SAME_LINE_WITH_COMMA) {
-            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT - 1, color);
-            field_draw(offset - DATE_SPACING, height + BMP_HEIGHT, color);
-        }
-    }
-
     // month before
     if (dmf == DMF_MONTH_BEFORE) {
         draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
@@ -222,17 +221,17 @@ static void draw_date() {
     const int first_line_height = split_height + SPLIT_TO_DATE_SPACING;
     const int second_line_height = first_line_height + BMP_HEIGHT + DATE_LINE_SPACING;
     const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
-    
+
+    draw_date_line(first_line_height, date_color);
     switch(dwf) {
-    case DWF_FIRST_LINE:
-        draw_date_line(second_line_height, date_color);
-        draw_weekday_line(first_line_height, date_color);
+    case DWF_MARKED:
+        draw_weekday_markers_line(second_line_height, date_color);
         break;
-    case DWF_SECOND_LINE:
-        draw_date_line(first_line_height, date_color);
+    case DWF_TEXT:
         draw_weekday_line(second_line_height, date_color);
+        break;
     default:
-        draw_date_line(first_line_height, date_color);
+        break; // nothing
     }
 }
 
@@ -345,6 +344,7 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     s_month = tick_time->tm_mon;
     s_day = tick_time->tm_mday;
     s_weekday = tick_time->tm_wday;
+    //s_weekday = (tick_time->tm_sec / 3) % 7;
 
     if (changed && !s_animating) {
         process_animation(NULL);
@@ -389,14 +389,10 @@ static void on_settings_changed() {
         break;
     }
 
-    int offset_y;
-    switch (s_settings[DATE_MODE]) {
-    case DM_NONE:
-        offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2; // center time
-        break;
-    default:
-        offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2 - 3; // balance time/date things
-        break;
+    int offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2;
+    if (s_settings[DATE_MODE] != DM_NONE) {
+        const int dwf = s_settings[DATE_WEEKDAY_FORMAT] % DWF_MAX;
+        offset_y += s_time_date_offsets[dwf];
     }
     for (int i = 0; i < STATE_COUNT; ++i) {
         s_states[i].offset_y = offset_y;
