@@ -5,7 +5,14 @@
 #include "bitmap.h"
 
 
+// real const
+#define STATE_COUNT 5
 
+// debug settings
+#define DYNAMIC_ASSEMBLY 0
+#define BIDIRECTIONAL_SYNC 0
+
+// animation settings
 #define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
 #define ANIMATION_PERIOD_INVIS_FRAMES 1
 #define ANIMATION_PERIOD_VIS_FRAMES 2
@@ -13,14 +20,10 @@
 #define ANIMATION_PERIODS 3
 #define ANIMATION_TIMEOUT_MS 100
 
-#define DYNAMIC_ASSEMBLY 0
-#define BIDIRECTIONAL_SYNC 0
-
-#define STATE_COUNT 5
+// datetime format settings
 #define TIME_TO_SPLIT_SPACING 2
 #define SPLIT_TO_DATE_SPACING 2
-
-#define DATE_SPACING 2
+#define DATE_SPACING 3
 #define DATE_LINE_SPACING 2
 
 typedef struct {
