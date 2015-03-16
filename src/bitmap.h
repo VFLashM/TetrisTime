@@ -348,10 +348,17 @@ static const Bitmap s_bluetooth = {
     "  #  "
 };
 
-static const Bitmap s_battery = {
+static const Bitmap s_battery_empty = {
     5, 3,
     "#### "
     "#  ##"
+    "#### "
+};
+
+static const Bitmap s_battery_charging = {
+    5, 3,
+    "#### "
+    "#####"
     "#### "
 };
 

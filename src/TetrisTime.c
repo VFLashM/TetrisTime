@@ -313,6 +313,19 @@ static void layer_draw(Layer* layer, GContext* ctx) {
             draw_bitmap(&s_bluetooth, ICON_MARGINS, ICON_MARGINS, s_fg_color);
         }
     }
+    if (s_settings[ICON_BATTERY]) {
+        const Bitmap* bmp = 0;
+        BatteryChargeState charge_state = battery_state_service_peek();
+        if (charge_state.is_charging) {
+            bmp = &s_battery_charging;
+        } else if (charge_state.charge_percent <= 20) {
+            bmp = &s_battery_empty;
+        }
+        if (bmp) {
+            draw_bitmap(bmp, FIELD_WIDTH - bmp->width - ICON_MARGINS, ICON_MARGINS, s_fg_color);
+        }
+    }
+    
     field_flush(layer, ctx);
 }
 
@@ -413,6 +426,12 @@ static void bt_handler(bool connected) {
     }
 }
 
+static void battery_handler(BatteryChargeState charge_state) {
+    if (s_layer) {
+        layer_mark_dirty(s_layer);
+    }
+}
+
 static void on_settings_changed() {
     int digits_mode = s_settings[DIGITS_MODE];
     if (digits_mode == DM_ASYMMETRIC && clock_is_24h_style()) {
@@ -476,6 +495,12 @@ static void on_settings_changed() {
         bluetooth_connection_service_subscribe(bt_handler);
     } else {
         bluetooth_connection_service_unsubscribe();
+    }
+
+    if (s_settings[ICON_BATTERY]) {
+        battery_state_service_subscribe(battery_handler);
+    } else {
+        battery_state_service_unsubscribe();
     }
 
     field_reset(s_bg_color);
