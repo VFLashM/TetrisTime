@@ -12,6 +12,8 @@ tracking rendering
 
 missing:
 
+am/pm
+battery 20/10?
 animation on date change
 configurable animations (timeout/period ticks/periods)
 configurable styles (default/staight/curved)?
