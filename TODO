@@ -21,3 +21,4 @@ configurable dynamic assembly?
 bugs:
 
 date always reanimated on settings change
+initial animation bugs: vanishing animation bugohack for digits, no delay for date
