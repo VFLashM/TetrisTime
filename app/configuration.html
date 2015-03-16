@@ -52,99 +52,99 @@
   </head>
   <body onload="parse_options()">
     <div style="margin:5px">
-    <h2 style="text-align:center">Configuration</h2>
-    <div class="ui-field-contain">
-    <fieldset data-role="controlgroup" data-type="horizontal">
-      <legend><h3>Theme</h3></legend>
-      <input name="LIGHT_THEME" id="LIGHT_THEME_0" value="0" checked="checked" type="radio">
-      <label for="LIGHT_THEME_0">Dark theme</label>
-      <input name="LIGHT_THEME" id="LIGHT_THEME_1" value="1" type="radio">
-      <label for="LIGHT_THEME_1">Light theme</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Digits style</h3></legend>
-      <input name="DIGITS_MODE" id="DIGITS_MODE_0" value="0" checked="checked" type="radio">
-      <label for="DIGITS_MODE_0">Default: asymmetric for 12h clock, compact for 24h clock</label>
-      <input name="DIGITS_MODE" id="DIGITS_MODE_1" value="1" type="radio">
-      <label for="DIGITS_MODE_1">Compact digits</label>
-      <input name="DIGITS_MODE" id="DIGITS_MODE_2" value="2" type="radio">
-      <label for="DIGITS_MODE_2">Sparse digits</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Colon style</h3></legend>
-      <input id="ANIMATE_SECOND_DOT" type="checkbox">
-      <label for="ANIMATE_SECOND_DOT">Animated seconds colon</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Date mode</h3></legend>
-      <input name="DATE_MODE" id="DATE_MODE_0" value="0" checked="checked" type="radio">
-      <label for="DATE_MODE_0">Inverted date</label>
-      <input name="DATE_MODE" id="DATE_MODE_1" value="1" type="radio">
-      <label for="DATE_MODE_1">Same color date</label>
-      <input name="DATE_MODE" id="DATE_MODE_2" value="2" type="radio">
-      <label for="DATE_MODE_2">No date</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Date first line format</h3></legend>
-      <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_0" value="0" checked="checked" type="radio">
-      <label for="DATE_MONTH_FORMAT_0">Month and day</label>
-      <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_1" value="1" type="radio">
-      <label for="DATE_MONTH_FORMAT_1">Day and month</label>
-      <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_2" value="2" type="radio">
-      <label for="DATE_MONTH_FORMAT_2">Weekday and day</label>
-      <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_3" value="3" type="radio">
-      <label for="DATE_MONTH_FORMAT_3">Day and weekday</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Date second line format</h3></legend>
-      <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_0" value="0" checked="checked" type="radio">
-      <label for="DATE_WEEKDAY_FORMAT_0">Marked weekday</label>
-      <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_1" value="1" type="radio">
-      <label for="DATE_WEEKDAY_FORMAT_1">Text weekday</label>
-      <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_2" value="2" type="radio">
-      <label for="DATE_WEEKDAY_FORMAT_2">Empty</label>
-    </fieldset>
-    <fieldset data-role="controlgroup" data-type="horizontal">
-      <legend><h3>First weekday</h3></legend>
-      <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_0" value="0" checked="checked" type="radio">
-      <label for="DATE_FIRST_WEEKDAY_0">Sunday first</label>
-      <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_1" value="1" type="radio">
-      <label for="DATE_FIRST_WEEKDAY_1">Monday first</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Icons</h3></legend>
-      <input id="ICON_CONNECTION" type="checkbox">
-      <label for="ICON_CONNECTION">Show bluetooth icon when there is no connection</label>
-      <input id="ICON_BATTERY" type="checkbox">
-      <label for="ICON_BATTERY">Show battery icon when battery is low or charging</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Disconnection notification</h3></legend>
-      <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_0" value="0" checked="checked" type="radio">
-      <label for="NOTIFICATION_DISCONNECTED_0">No notification</label>
-      <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_1" value="1" type="radio">
-      <label for="NOTIFICATION_DISCONNECTED_1">Short pulse</label>
-      <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_2" value="2" type="radio">
-      <label for="NOTIFICATION_DISCONNECTED_2">Long pulse</label>
-      <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_3" value="3" type="radio">
-      <label for="NOTIFICATION_DISCONNECTED_3">Double pulse</label>
-    </fieldset>
-    <fieldset data-role="controlgroup">
-      <legend><h3>Reconnection notification</h3></legend>
-      <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_0" value="0" checked="checked" type="radio">
-      <label for="NOTIFICATION_CONNECTED_0">No notification</label>
-      <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_1" value="1" type="radio">
-      <label for="NOTIFICATION_CONNECTED_1">Short pulse</label>
-      <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_2" value="2" type="radio">
-      <label for="NOTIFICATION_CONNECTED_2">Long pulse</label>
-      <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_3" value="3" type="radio">
-      <label for="NOTIFICATION_CONNECTED_3">Double pulse</label>
-    </fieldset>
-    </div>
-    <div>
-      <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
-      <div class="ui-block-a" style="float:right;margin:10"><button type="submit" data-theme="d" id="cancel" onclick="cancel()">Cancel</button></div>
-    </div>
+      <h2 style="text-align:center">Configuration</h2>
+      <div class="ui-field-contain">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+          <legend><h3>Theme</h3></legend>
+          <input name="LIGHT_THEME" id="LIGHT_THEME_0" value="0" checked="checked" type="radio">
+          <label for="LIGHT_THEME_0">Dark theme</label>
+          <input name="LIGHT_THEME" id="LIGHT_THEME_1" value="1" type="radio">
+          <label for="LIGHT_THEME_1">Light theme</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Digits style</h3></legend>
+          <input name="DIGITS_MODE" id="DIGITS_MODE_0" value="0" checked="checked" type="radio">
+          <label for="DIGITS_MODE_0">Default: asymmetric for 12h clock, compact for 24h clock</label>
+          <input name="DIGITS_MODE" id="DIGITS_MODE_1" value="1" type="radio">
+          <label for="DIGITS_MODE_1">Compact digits</label>
+          <input name="DIGITS_MODE" id="DIGITS_MODE_2" value="2" type="radio">
+          <label for="DIGITS_MODE_2">Sparse digits</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Colon style</h3></legend>
+          <input id="ANIMATE_SECOND_DOT" type="checkbox">
+          <label for="ANIMATE_SECOND_DOT">Animated seconds colon</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Date mode</h3></legend>
+          <input name="DATE_MODE" id="DATE_MODE_0" value="0" checked="checked" type="radio">
+          <label for="DATE_MODE_0">Inverted date</label>
+          <input name="DATE_MODE" id="DATE_MODE_1" value="1" type="radio">
+          <label for="DATE_MODE_1">Same color date</label>
+          <input name="DATE_MODE" id="DATE_MODE_2" value="2" type="radio">
+          <label for="DATE_MODE_2">No date</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Date first line format</h3></legend>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_0" value="0" checked="checked" type="radio">
+          <label for="DATE_MONTH_FORMAT_0">Month and day</label>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_1" value="1" type="radio">
+          <label for="DATE_MONTH_FORMAT_1">Day and month</label>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_2" value="2" type="radio">
+          <label for="DATE_MONTH_FORMAT_2">Weekday and day</label>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_3" value="3" type="radio">
+          <label for="DATE_MONTH_FORMAT_3">Day and weekday</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Date second line format</h3></legend>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_0" value="0" checked="checked" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_0">Marked weekday</label>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_1" value="1" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_1">Text weekday</label>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_2" value="2" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_2">Empty</label>
+        </fieldset>
+        <fieldset data-role="controlgroup" data-type="horizontal">
+          <legend><h3>First weekday</h3></legend>
+          <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_0" value="0" checked="checked" type="radio">
+          <label for="DATE_FIRST_WEEKDAY_0">Sunday first</label>
+          <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_1" value="1" type="radio">
+          <label for="DATE_FIRST_WEEKDAY_1">Monday first</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Icons</h3></legend>
+          <input id="ICON_CONNECTION" type="checkbox">
+          <label for="ICON_CONNECTION">Show bluetooth icon when there is no connection</label>
+          <input id="ICON_BATTERY" type="checkbox">
+          <label for="ICON_BATTERY">Show battery icon when battery is low or charging</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Disconnection notification</h3></legend>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_0" value="0" checked="checked" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_0">No notification</label>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_1" value="1" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_1">Short pulse</label>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_2" value="2" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_2">Long pulse</label>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_3" value="3" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_3">Double pulse</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Reconnection notification</h3></legend>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_0" value="0" checked="checked" type="radio">
+          <label for="NOTIFICATION_CONNECTED_0">No notification</label>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_1" value="1" type="radio">
+          <label for="NOTIFICATION_CONNECTED_1">Short pulse</label>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_2" value="2" type="radio">
+          <label for="NOTIFICATION_CONNECTED_2">Long pulse</label>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_3" value="3" type="radio">
+          <label for="NOTIFICATION_CONNECTED_3">Double pulse</label>
+        </fieldset>
+      </div>
+      <div>
+        <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
+        <div class="ui-block-a" style="float:right;margin:10"><button type="submit" data-theme="d" id="cancel" onclick="cancel()">Cancel</button></div>
+      </div>
     </div>
   </body>
 </html>
