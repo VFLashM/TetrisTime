@@ -11,6 +11,7 @@ typedef enum {
     DATE_MODE,
     DATE_MONTH_FORMAT,
     DATE_WEEKDAY_FORMAT,
+    DATE_FIRST_WEEKDAY,
     
     MAX_KEY,
 } SettingsKey;
@@ -60,6 +61,7 @@ static void settings_apply(const int* new_settings) {
     s_settings[DATE_MODE] %= DM_MAX;
     s_settings[DATE_MONTH_FORMAT] %= DMF_MAX;
     s_settings[DATE_WEEKDAY_FORMAT] %= DWF_MAX;
+    s_settings[DATE_FIRST_WEEKDAY] %= 7;
 
     // disable duplicated text weekday
     if (s_settings[DATE_WEEKDAY_FORMAT] == DWF_TEXT) {

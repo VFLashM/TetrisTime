@@ -16,7 +16,8 @@
         "DIGITS_MODE": 3,
         "DATE_MODE": 4,
         "DATE_MONTH_FORMAT": 5,
-        "DATE_WEEKDAY_FORMAT": 6
+        "DATE_WEEKDAY_FORMAT": 6,
+        "DATE_FIRST_WEEKDAY": 7
     },
     "resources": {
         "media": [

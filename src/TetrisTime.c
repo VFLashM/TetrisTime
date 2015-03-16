@@ -19,7 +19,7 @@
 #define ANIMATION_PERIOD_FRAMES (ANIMATION_PERIOD_INVIS_FRAMES + ANIMATION_PERIOD_VIS_FRAMES)
 #define ANIMATION_PERIODS 3
 #define ANIMATION_TIMEOUT_MS 100
-#define ANIMATION_DATE_FRAMES 5
+#define ANIMATION_DATE_FRAMES 4
 
 // datetime format settings
 #define TIME_TO_SPLIT_SPACING 2
@@ -163,15 +163,18 @@ static void draw_weekday_line(int height, PaletteColor color) {
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
 }
 
-static void draw_weekday_markers_line(int height, PaletteColor color) {
+static void draw_marked_weekday_line(int height, PaletteColor color) {
+    const int first_weekday = s_settings[DATE_FIRST_WEEKDAY];
     int width = 0;
     for (int i = 0; i < 7; ++i) {
-        const int bmp_idx = (i == s_weekday) ? i : 7;
+        const int day = (first_weekday + i) % 7;
+        const int bmp_idx = (day == s_weekday) ? day : 7;
         width += s_marked_weekdays[bmp_idx].width;
     }
     int offset = (FIELD_WIDTH - width + 1) / 2;
     for (int i = 0; i < 7; ++i) {
-        const int bmp_idx = (i == s_weekday) ? i : 7;
+        const int day = (first_weekday + i) % 7;
+        const int bmp_idx = (day == s_weekday) ? day : 7;
         draw_bitmap_move(&offset, &s_marked_weekdays[bmp_idx], height, color, 0);
     }
 }
@@ -253,7 +256,7 @@ static void draw_date() {
     draw_date_line(first_line_height, date_color);
     switch(dwf) {
     case DWF_MARKED:
-        draw_weekday_markers_line(second_line_height, date_color);
+        draw_marked_weekday_line(second_line_height, date_color);
         break;
     case DWF_TEXT:
         draw_weekday_line(second_line_height, date_color);
