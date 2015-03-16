@@ -19,6 +19,8 @@ typedef enum {
     
     NOTIFICATION_DISCONNECTED,
     NOTIFICATION_CONNECTED,
+
+    SKIP_INITIAL_ANIMATION,
     
     MAX_KEY,
 } SettingsKey;

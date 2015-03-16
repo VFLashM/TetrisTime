@@ -360,16 +360,6 @@ static void process_animation(void* data) {
     }
 }
 
-static void main_window_load(Window *window) {
-    s_layer = window_get_root_layer(window);
-
-    field_reset(s_bg_color);
-    layer_set_update_proc(s_layer, layer_draw);
-}
-
-static void main_window_unload(Window *window) {
-}
-
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     const int clock24 = clock_is_24h_style();
     
@@ -499,7 +489,11 @@ static void on_settings_changed() {
         s_fg_color = COLOR_WHITE;
     }
 
-    s_date_frame = (FIELD_HEIGHT - get_final_date_split_height()) * ANIMATION_DATE_FRAMES;
+    if (!s_settings[SKIP_INITIAL_ANIMATION]) {
+        s_date_frame = (FIELD_HEIGHT - get_final_date_split_height()) * ANIMATION_DATE_FRAMES;
+    } else {
+        s_date_frame = 0;
+    }
 
     tick_timer_service_unsubscribe();
     if (s_settings[ANIMATE_SECOND_DOT]) {
@@ -525,7 +519,9 @@ static void on_settings_changed() {
     if (s_layer) {
         layer_mark_dirty(s_layer);
     }
-    process_animation(NULL);
+    if (!s_animating) {
+        process_animation(NULL);
+    }
 }
 
 static void in_received_handler(DictionaryIterator* iter, void* context)
@@ -533,6 +529,31 @@ static void in_received_handler(DictionaryIterator* iter, void* context)
     settings_read(iter);
     APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
     on_settings_changed();
+}
+
+static void main_window_load(Window* window) {
+    s_layer = window_get_root_layer(window);
+    layer_set_update_proc(s_layer, layer_draw);
+
+    on_settings_changed();
+
+    time_t now;
+    time(&now);
+    struct tm* now_time = localtime(&now);
+    tick_handler(now_time, -1);
+
+    if (s_settings[SKIP_INITIAL_ANIMATION]) {
+        for (int i = 0; i < STATE_COUNT; ++i) {
+            // skip vanishing animation
+            s_states[i].vanishing_frame = ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES + 1;
+            state_step(&s_states[i]);
+            s_states[i].current = s_states[i].target;
+        }
+    }
+}
+
+static void main_window_unload(Window* window) {
+    s_layer = 0;
 }
   
 static void init() {
@@ -563,27 +584,20 @@ static void init() {
     for (int i = 0; i < STATE_COUNT; ++i) {
         s_states[i].next_value = -1;
         s_states[i].target_value = -1;
+        // it looks better WITH vanishing animation
+        //s_states[i].vanishing_frame = ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES + 1;
     }
     s_states[4].restricted_spawn_width = 1;
     
-    // Create main Window element and assign to pointer
+    // init window
     s_window = window_create();
-
-    // Set handlers to manage the elements inside the Window
-    window_set_window_handlers(s_window, (WindowHandlers) {
-            .load = main_window_load,
-                .unload = main_window_unload
-                });
-
-    // Show the Window on the watch, with animated=true
+    window_set_window_handlers(s_window, (WindowHandlers) { .load = main_window_load, .unload = main_window_unload });
     window_stack_push(s_window, true);
-
-    on_settings_changed();
 }
 
 static void deinit() {
-    // Destroy Window
     window_destroy(s_window);
+    s_window = 0;
 }
 
 int main(void) {
