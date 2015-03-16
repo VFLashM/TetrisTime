@@ -27,6 +27,9 @@
 #define DATE_SPACING 3
 #define DATE_LINE_SPACING 2
 
+// icons settings
+#define ICON_MARGINS 1
+
 typedef struct {
     int offset_x;
     int offset_y;
@@ -305,6 +308,11 @@ static void layer_draw(Layer* layer, GContext* ctx) {
         draw_digit_state(&s_states[4]);
     }
     draw_date();
+    if (s_settings[ICON_CONNECTION]) {
+        if (!bluetooth_connection_service_peek()) {
+            draw_bitmap(&s_bluetooth, ICON_MARGINS, ICON_MARGINS, s_fg_color);
+        }
+    }
     field_flush(layer, ctx);
 }
 
@@ -399,6 +407,12 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     }
 }
 
+static void bt_handler(bool connected) {
+    if (s_layer) {
+        layer_mark_dirty(s_layer);
+    }
+}
+
 static void on_settings_changed() {
     int digits_mode = s_settings[DIGITS_MODE];
     if (digits_mode == DM_ASYMMETRIC && clock_is_24h_style()) {
@@ -458,10 +472,17 @@ static void on_settings_changed() {
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
 
+    if (s_settings[ICON_CONNECTION]) {
+        bluetooth_connection_service_subscribe(bt_handler);
+    } else {
+        bluetooth_connection_service_unsubscribe();
+    }
+
     field_reset(s_bg_color);
     if (s_layer) {
         layer_mark_dirty(s_layer);
     }
+    process_animation(NULL);
 }
 
 static void in_received_handler(DictionaryIterator* iter, void* context)

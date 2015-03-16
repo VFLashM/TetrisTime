@@ -8,7 +8,7 @@ typedef struct {
     char* data;
 } Bitmap;
 
-static Bitmap s_months[12] = {
+static const Bitmap s_months[12] = {
     {
         MONTH_WIDTH, BMP_HEIGHT,
         "   #         "
@@ -119,7 +119,7 @@ static Bitmap s_months[12] = {
     },
 };
 
-static Bitmap s_bmp_digits[10] = {
+static const Bitmap s_bmp_digits[10] = {
     {
         BMP_DIGIT_WIDTH, BMP_HEIGHT,
         " ## "
@@ -212,7 +212,7 @@ static Bitmap s_bmp_digits[10] = {
     },
 };
 
-static Bitmap s_marked_weekdays[8] = {
+static const Bitmap s_marked_weekdays[8] = {
     { 6, 5,
       "  ### "
       " #    "
@@ -271,7 +271,7 @@ static Bitmap s_marked_weekdays[8] = {
     },
 };
 
-static Bitmap s_weekdays[7] = {
+static const Bitmap s_weekdays[7] = {
     {
         14, BMP_HEIGHT,
         " ##           "
@@ -335,6 +335,24 @@ static Bitmap s_weekdays[7] = {
         "#  # #  #  # "
         " ##  #  #  # "
     },
+};
+
+static const Bitmap s_bluetooth = {
+    5, 7,
+    "  #  "
+    "  ## "
+    "# # #"
+    " ### "
+    "# # #"
+    "  ## "
+    "  #  "
+};
+
+static const Bitmap s_battery = {
+    5, 3,
+    "#### "
+    "#  ##"
+    "#### "
 };
 
 

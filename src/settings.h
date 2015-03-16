@@ -2,6 +2,7 @@
 
 #define SETTINGS_VERSION_VALUE 1
 
+// I should've used a prefix =/
 typedef enum {
     VERSION = 0,
     LIGHT_THEME,
@@ -12,6 +13,9 @@ typedef enum {
     DATE_MONTH_FORMAT,
     DATE_WEEKDAY_FORMAT,
     DATE_FIRST_WEEKDAY,
+
+    ICON_CONNECTION,
+    ICON_BATTERY,
     
     MAX_KEY,
 } SettingsKey;
@@ -62,6 +66,8 @@ static void settings_apply(const int* new_settings) {
     s_settings[DATE_MONTH_FORMAT] %= DMF_MAX;
     s_settings[DATE_WEEKDAY_FORMAT] %= DWF_MAX;
     s_settings[DATE_FIRST_WEEKDAY] %= 7;
+    s_settings[ICON_CONNECTION] %= 2;
+    s_settings[ICON_BATTERY] %= 2;
 
     // disable duplicated text weekday
     if (s_settings[DATE_WEEKDAY_FORMAT] == DWF_TEXT) {
