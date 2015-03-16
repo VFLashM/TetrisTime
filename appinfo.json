@@ -17,7 +17,9 @@
         "DATE_MODE": 4,
         "DATE_MONTH_FORMAT": 5,
         "DATE_WEEKDAY_FORMAT": 6,
-        "DATE_FIRST_WEEKDAY": 7
+        "DATE_FIRST_WEEKDAY": 7,
+        "ICON_CONNECTION": 8,
+        "ICON_BATTERY": 9
     },
     "resources": {
         "media": [

@@ -20,3 +20,8 @@ animation on date change
 configurable animations (timeout/period ticks/periods)
 configurable styles (default/staight/curved)?
 configurable dynamic assembly?
+
+
+bugs:
+
+date always reanimated on settings change

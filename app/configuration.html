@@ -23,14 +23,23 @@
               var name = "#" + key + "_" + options[key];
               console.log("checking " + name);
               $(name).prop("checked", true);
+              if (Number(options[key]) != 0) {
+                  var name2 = "#" + key;
+                  console.log("checking " + name2);
+                  $(name2).prop("checked", true);
+              }
               $("input[name='" + key + "']").checkboxradio("refresh");
+              $("input[id='"   + key + "']").checkboxradio("refresh");
             }
           }
         }
       }
       function save() {
-        $("input:checked").each(function (index) {
+        $("input:radio:checked").each(function (index) {
           options[this.name] = Number(this.value);
+        })
+        $("input:checkbox").each(function (index) {
+          options[this.id] = Number(this.checked);
         })
         console.log("Save: " + JSON.stringify(options));
         document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
@@ -61,10 +70,8 @@
     </p>
     <p>
       <h3>Colon style</h3>
-      <input name="ANIMATE_SECOND_DOT" id="ANIMATE_SECOND_DOT_0" value="0" checked="checked" type="radio">
-      <label for="ANIMATE_SECOND_DOT_0">Static colon</label>
-      <input name="ANIMATE_SECOND_DOT" id="ANIMATE_SECOND_DOT_1" value="1" type="radio">
-      <label for="ANIMATE_SECOND_DOT_1">Blinking colon</label>
+      <input id="ANIMATE_SECOND_DOT" type="checkbox">
+      <label for="ANIMATE_SECOND_DOT">Animated seconds colon</label>
     </p>
     <p>
       <h3>Date mode</h3>
@@ -101,6 +108,13 @@
       <label for="DATE_FIRST_WEEKDAY_0">Sunday first</label>
       <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_1" value="1" type="radio">
       <label for="DATE_FIRST_WEEKDAY_1">Monday first</label>
+    </p>
+    <p>
+      <h3>Icons</h3>
+      <input id="ICON_CONNECTION" type="checkbox">
+      <label for="ICON_CONNECTION">Show bluetooth icon when there is no connection</label>
+      <input id="ICON_BATTERY" type="checkbox">
+      <label for="ICON_BATTERY">Show battery icon when battery is low</label>
     </p>
     <p>
       <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
