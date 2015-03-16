@@ -338,28 +338,28 @@ static const Bitmap s_weekdays[7] = {
 };
 
 static const Bitmap s_bluetooth = {
-    5, 7,
-    "  #  "
-    "  ## "
-    "# # #"
-    " ### "
-    "# # #"
-    "  ## "
-    "  #  "
+    4, 5,
+    "  # "
+    "  ##"
+    " ## "
+    "  ##"
+    "  # "
 };
 
 static const Bitmap s_battery_empty = {
-    5, 3,
-    "#### "
-    "#  ##"
-    "#### "
+    6, 4,
+    "      "
+    "####  "
+    "#  ## "
+    "####  "
 };
 
 static const Bitmap s_battery_charging = {
-    5, 3,
-    "#### "
-    "#####"
-    "#### "
+    6, 4,
+    "      "
+    "####  "
+    "##### "
+    "####  "
 };
 
 

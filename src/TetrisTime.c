@@ -27,9 +27,6 @@
 #define DATE_SPACING 3
 #define DATE_LINE_SPACING 2
 
-// icons settings
-#define ICON_MARGINS 1
-
 typedef struct {
     int offset_x;
     int offset_y;
@@ -310,7 +307,7 @@ static void layer_draw(Layer* layer, GContext* ctx) {
     draw_date();
     if (s_settings[ICON_CONNECTION]) {
         if (!bluetooth_connection_service_peek()) {
-            draw_bitmap(&s_bluetooth, ICON_MARGINS, ICON_MARGINS, s_fg_color);
+            draw_bitmap(&s_bluetooth, 0, 0, s_fg_color);
         }
     }
     if (s_settings[ICON_BATTERY]) {
@@ -322,7 +319,7 @@ static void layer_draw(Layer* layer, GContext* ctx) {
             bmp = &s_battery_empty;
         }
         if (bmp) {
-            draw_bitmap(bmp, FIELD_WIDTH - bmp->width - ICON_MARGINS, ICON_MARGINS, s_fg_color);
+            draw_bitmap(bmp, FIELD_WIDTH - bmp->width, 0, s_fg_color);
         }
     }
     
