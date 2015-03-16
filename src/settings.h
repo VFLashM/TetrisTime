@@ -17,6 +17,9 @@ typedef enum {
     ICON_CONNECTION,
     ICON_BATTERY,
     
+    NOTIFICATION_DISCONNECTED,
+    NOTIFICATION_CONNECTED,
+    
     MAX_KEY,
 } SettingsKey;
 
@@ -49,6 +52,14 @@ typedef enum {
     DWF_MAX,
 } DateWeekdayFormat;
 
+typedef enum {
+    NTF_NONE,
+    NTF_SHORT_PULSE,
+    NTF_LONG_PULSE,
+    NTF_DOUBLE_PULSE,
+    NTF_MAX,
+} NotificationType;
+
 typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
@@ -68,6 +79,8 @@ static void settings_apply(const int* new_settings) {
     s_settings[DATE_FIRST_WEEKDAY] %= 7;
     s_settings[ICON_CONNECTION] %= 2;
     s_settings[ICON_BATTERY] %= 2;
+    s_settings[NOTIFICATION_DISCONNECTED] %= NTF_MAX;
+    s_settings[NOTIFICATION_CONNECTED] %= NTF_MAX;
 
     // disable duplicated text weekday
     if (s_settings[DATE_WEEKDAY_FORMAT] == DWF_TEXT) {

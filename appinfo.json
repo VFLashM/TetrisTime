@@ -19,7 +19,9 @@
         "DATE_WEEKDAY_FORMAT": 6,
         "DATE_FIRST_WEEKDAY": 7,
         "ICON_CONNECTION": 8,
-        "ICON_BATTERY": 9
+        "ICON_BATTERY": 9,
+        "NOTIFICATION_DISCONNECTED": 10,
+        "NOTIFICATION_CONNECTED": 11
     },
     "resources": {
         "media": [

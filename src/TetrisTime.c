@@ -417,9 +417,30 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     }
 }
 
+inline static void notify(NotificationType notification) {
+    switch (notification) {
+    case NTF_SHORT_PULSE:
+        vibes_short_pulse();
+        break;
+    case NTF_LONG_PULSE:
+        vibes_long_pulse();
+        break;
+    case NTF_DOUBLE_PULSE:
+        vibes_double_pulse();
+        break;
+    default:
+        break;
+    }
+}
+
 static void bt_handler(bool connected) {
-    if (s_layer) {
+    if (s_layer && s_settings[ICON_CONNECTION]) {
         layer_mark_dirty(s_layer);
+    }
+    if (connected) {
+        notify(s_settings[NOTIFICATION_CONNECTED]);
+    } else {
+        notify(s_settings[NOTIFICATION_DISCONNECTED]);
     }
 }
 
@@ -488,7 +509,7 @@ static void on_settings_changed() {
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
 
-    if (s_settings[ICON_CONNECTION]) {
+    if (s_settings[ICON_CONNECTION] || s_settings[NOTIFICATION_DISCONNECTED] || s_settings[NOTIFICATION_CONNECTED]) {
         bluetooth_connection_service_subscribe(bt_handler);
     } else {
         bluetooth_connection_service_unsubscribe();
