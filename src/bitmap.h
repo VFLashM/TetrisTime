@@ -1,5 +1,4 @@
 #define BMP_HEIGHT 6
-#define MONTH_WIDTH 13
 #define BMP_DIGIT_WIDTH 4
 
 typedef struct {
@@ -10,16 +9,16 @@ typedef struct {
 
 static const Bitmap s_months[12] = {
     {
-        MONTH_WIDTH, BMP_HEIGHT,
-        "   #         "
-        "   #  #  #  #"
-        "   # # # ## #"
-        "   # ### # ##"
-        "#  # # # #  #"
-        " ##  # # #  #"
+        14, BMP_HEIGHT,
+        "   #          "
+        "   #  ##  #  #"
+        "   # #  # ## #"
+        "   # #### # ##"
+        "#  # #  # #  #"
+        " ##  #  # #  #"
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
+        13, BMP_HEIGHT,
         "####         "
         "#    ### ### "
         "###  #   #  #"
@@ -28,43 +27,43 @@ static const Bitmap s_months[12] = {
         "#    ### ### "
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
-        "#   #        "
-        "## ##  #  ## "
-        "# # # # # # #"
-        "#   # ### ## "
-        "#   # # # # #"
-        "#   # # # # #"
+        15, BMP_HEIGHT,
+        "#   #          "
+        "## ##  ##  ### "
+        "# # # #  # #  #"
+        "#   # #### ### "
+        "#   # #  # #  #"
+        "#   # #  # #  #"
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
-        " ##          "
-        "#  # ###  ## "
-        "#  # #  # # #"
-        "#### ###  ## "
-        "#  # #    # #"
-        "#  # #    # #"
+        14, BMP_HEIGHT,
+        " ##           "
+        "#  # ###  ### "
+        "#  # #  # #  #"
+        "#### ###  ### "
+        "#  # #    #  #"
+        "#  # #    #  #"
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
-        "#   #        "
-        "## ##  #  # #"
-        "# # # # # # #"
-        "#   # ###  # "
-        "#   # # #  # "
-        "#   # # #  # "
+        14, BMP_HEIGHT,
+        "#   #         "
+        "## ##  ##  # #"
+        "# # # #  # # #"
+        "#   # ####  # "
+        "#   # #  #  # "
+        "#   # #  #  # "
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
-        "   #         "
-        "   # # # #  #"
-        "   # # # ## #"
-        "   # # # # ##"
-        "#  # # # #  #"
-        " ##   #  #  #"
+        14, BMP_HEIGHT,
+        "   #          "
+        "   # #  # #  #"
+        "   # #  # ## #"
+        "   # #  # # ##"
+        "#  # #  # #  #"
+        " ##   ##  #  #"
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
+        13, BMP_HEIGHT,
         "   #         "
         "   # #  # #  "
         "   # #  # #  "
@@ -73,16 +72,16 @@ static const Bitmap s_months[12] = {
         " ##   ##  ###"
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
-        " ##          "
-        "#  # # #  ## "
-        "#  # # # #  #"
-        "#### # # #   "
-        "#  # # # # ##"
-        "#  #  #   ###"
+        14, BMP_HEIGHT,
+        " ##           "
+        "#  # #  #  ## "
+        "#  # #  # #  #"
+        "#### #  # #   "
+        "#  # #  # # ##"
+        "#  #  ##   ###"
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
+        13, BMP_HEIGHT,
         " ##          "
         "#  # ### ### "
         " #   #   #  #"
@@ -91,7 +90,7 @@ static const Bitmap s_months[12] = {
         " ##  ### #   "
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
+        13, BMP_HEIGHT,
         " ##          "
         "#  #  ##  ###"
         "#  # #  #  # "
@@ -100,16 +99,16 @@ static const Bitmap s_months[12] = {
         " ##   ##   # "
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
+        13, BMP_HEIGHT,
         "#  #         "
         "## #  ##  # #"
-        "## # #  # # #"
+        "#### #  # # #"
         "# ## #  # # #"
-        "# ## #  # # #"
+        "#  # #  # # #"
         "#  #  ##   # "
     },
     {
-        MONTH_WIDTH, BMP_HEIGHT,
+        13, BMP_HEIGHT,
         "###          "
         "#  # ###  ## "
         "#  # #   #  #"
@@ -289,13 +288,13 @@ static const Bitmap s_weekdays[7] = {
         " ##   ##  #  #"
     },
     {
-        14, BMP_HEIGHT,
-        "#   #         "
-        "## ##  #  #  #"
-        "# # # # # ## #"
-        "#   # # # # ##"
-        "#   # # # #  #"
-        "#   #  #  #  #"
+        15, BMP_HEIGHT,
+        "#   #          "
+        "## ##  ##  #  #"
+        "# # # #  # ## #"
+        "#   # #  # # ##"
+        "#   # #  # #  #"
+        "#   #  ##  #  #"
     },
     {
         13, BMP_HEIGHT,
@@ -307,13 +306,13 @@ static const Bitmap s_weekdays[7] = {
         "  #   ##  ###"
     },
     {
-        13, BMP_HEIGHT,
-        "#   #        "
-        "#   # ### ## "
-        "#   # #   # #"
-        "# # # ##  # #"
-        "# # # #   # #"
-        " # #  ### ## "
+        14, BMP_HEIGHT,
+        "#   #         "
+        "#   # ### ### "
+        "#   # #   #  #"
+        "# # # ##  #  #"
+        "# # # #   #  #"
+        " # #  ### ### "
     },
     {
         14, BMP_HEIGHT,

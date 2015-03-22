@@ -398,7 +398,8 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     s_month = tick_time->tm_mon;
     s_day = tick_time->tm_mday;
     s_weekday = tick_time->tm_wday;
-    //s_weekday = (tick_time->tm_sec / 3) % 7;
+    //s_weekday = (tick_time->tm_sec / 2) % 7;
+    //s_month = ((tick_time->tm_sec + 1) / 2) % 12;
 
     if (changed && !s_animating) {
         process_animation(NULL);
