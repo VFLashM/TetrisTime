@@ -6,11 +6,12 @@ typedef int TetriminoMask[TETRIMINO_MASK_SIZE][TETRIMINO_MASK_SIZE];
 typedef struct {
     char letter;
     int size;
+    int unique_shapes;
     TetriminoMask rotations[4];
 } TetriminoDef;
 
 static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
-    { 'i', 4, {
+    { 'i', 4, 2, {
             {{0,0,0,0},
              {1,1,1,1},
              {0,0,0,0},
@@ -28,7 +29,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,1,0,0}}
         }},
-    { 'j', 3, {
+    { 'j', 3, 4, {
             {{1,0,0,0},
              {1,1,1,0},
              {0,0,0,0},
@@ -46,7 +47,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {1,1,0,0},
              {0,0,0,0}}
         }},
-    { 'l', 3, {
+    { 'l', 3, 4, {
             {{0,0,1,0},
              {1,1,1,0},
              {0,0,0,0},
@@ -64,7 +65,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,0,0,0}}
         }},
-    { 'o', 2, {
+    { 'o', 2, 1, {
             {{1,1,0,0},
              {1,1,0,0},
              {0,0,0,0},
@@ -82,7 +83,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,0,0,0},
              {0,0,0,0}}
         }},
-    { 's', 3, {
+    { 's', 3, 2, {
             {{0,1,1,0},
              {1,1,0,0},
              {0,0,0,0},
@@ -100,7 +101,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,0,0,0}}
         }},
-    { 't', 3, {
+    { 't', 3, 4, {
             {{0,1,0,0},
              {1,1,1,0},
              {0,0,0,0},
@@ -118,7 +119,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0},
              {0,0,0,0}}
         }},
-    { 'z', 3, {
+    { 'z', 3, 2, {
             {{1,1,0,0},
              {0,1,1,0},
              {0,0,0,0},

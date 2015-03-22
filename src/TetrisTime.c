@@ -126,7 +126,8 @@ static void state_step(DigitState* state) {
     
     
     if (state->current.size < state->target.size) {
-        const char target_letter = state->target.tetriminos[state->current.size].letter;
+        const TetriminoPos* target_pos = &state->target.tetriminos[state->current.size];
+        const char target_letter = target_pos->letter;
         const TetriminoDef* td = get_tetrimino_def(target_letter);
 
         const int start_y = -state->offset_y - td->size + 1;
@@ -141,7 +142,8 @@ static void state_step(DigitState* state) {
                 current_pos->x = rand() % (DIGIT_WIDTH - td->size + 1);
             }
             current_pos->y = start_y;
-            current_pos->rotation = rand() % 4;
+            const int rotation_unique = rand() % td->unique_shapes;
+            current_pos->rotation = (target_pos->rotation - rotation_unique + 4) % 4;
             state->action_height = start_y;
             state->current.size += 1;
         }
