@@ -1,3 +1,10 @@
+misc:
+
+animation record
+animation assembly
+new description
+new pictures
+
 optimizations:
 
 date non-rendering
@@ -21,3 +28,8 @@ bugs:
 
 date always reanimated on settings change
 initial animation bugs: vanishing animation bugohack for digits, no delay for date
+
+future:
+
+colors
+date area assembly?
