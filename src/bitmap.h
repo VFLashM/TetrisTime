@@ -212,7 +212,7 @@ static const Bitmap s_bmp_digits[10] = {
     },
 };
 
-static const Bitmap s_marked_weekdays[8] = {
+static const Bitmap s_marked_weekdays[9] = {
     { 6, 5,
       "  ### "
       " #    "
@@ -268,6 +268,13 @@ static const Bitmap s_marked_weekdays[8] = {
       " ## "
       " ## "
       "    "
+    },
+    { 6, 5,
+      "      "
+      " #### "
+      " #  # "
+      " #  # "
+      " #### "
     },
 };
 
@@ -373,6 +380,9 @@ static void draw_bitmap(const Bitmap* bmp, int x, int y, PaletteColor color) {
         }
         yoffset += bmp->width;
     }
+    // if ((int)strlen(bmp->data) != bmp->width * bmp->height) {
+    //     APP_LOG(APP_LOG_LEVEL_ERROR, "Bitmap size mismatch: %dx%d with data lenght %d", bmp->width, bmp->height, strlen(bmp->data));
+    // }
 }
 
 static void draw_bitmap_move(int* xptr, const Bitmap* bmp, int y, PaletteColor color, int spacing) {

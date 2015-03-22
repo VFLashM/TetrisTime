@@ -63,7 +63,7 @@ static Layer* s_layer;
 static DigitState s_states[STATE_COUNT];
 static int s_date_frame;
 
-static const int s_time_date_offsets[DWF_MAX] = { -3, -4, -2 };
+static const int s_time_date_offsets[DWF_MAX] = { -2, -3, -4, -2 };
 
 static void state_step(DigitState* state) {
     if (!state->falling) {
@@ -163,18 +163,18 @@ static void draw_weekday_line(int height, PaletteColor color) {
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
 }
 
-static void draw_marked_weekday_line(int height, PaletteColor color) {
+static void draw_marked_weekday_line(int height, PaletteColor color, int use_letter) {
     const int first_weekday = s_settings[DATE_FIRST_WEEKDAY];
     int width = 0;
     for (int i = 0; i < 7; ++i) {
         const int day = (first_weekday + i) % 7;
-        const int bmp_idx = (day == s_weekday) ? day : 7;
+        const int bmp_idx = (day == s_weekday) ? (use_letter ? day : 8) : 7;
         width += s_marked_weekdays[bmp_idx].width;
     }
     int offset = (FIELD_WIDTH - width + 1) / 2;
     for (int i = 0; i < 7; ++i) {
         const int day = (first_weekday + i) % 7;
-        const int bmp_idx = (day == s_weekday) ? day : 7;
+        const int bmp_idx = (day == s_weekday) ? (use_letter ? day : 8) : 7;
         draw_bitmap_move(&offset, &s_marked_weekdays[bmp_idx], height, color, 0);
     }
 }
@@ -256,7 +256,10 @@ static void draw_date() {
     draw_date_line(first_line_height, date_color);
     switch(dwf) {
     case DWF_MARKED:
-        draw_marked_weekday_line(second_line_height, date_color);
+        draw_marked_weekday_line(second_line_height-1, date_color, 0);
+        break;
+    case DWF_LETTER:
+        draw_marked_weekday_line(second_line_height, date_color, 1);
         break;
     case DWF_TEXT:
         draw_weekday_line(second_line_height, date_color);
@@ -475,6 +478,9 @@ static void on_settings_changed() {
 
     int offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2;
     if (s_settings[DATE_MODE] != DM_NONE) {
+        for (int i = 0; i < DWF_MAX; ++i) {
+            APP_LOG(APP_LOG_LEVEL_INFO, "arrrar %d: %d %d %d", i, s_settings[DATE_WEEKDAY_FORMAT], s_time_date_offsets[s_settings[DATE_WEEKDAY_FORMAT]], s_time_date_offsets[i]);
+        }
         offset_y += s_time_date_offsets[s_settings[DATE_WEEKDAY_FORMAT]];
     }
     for (int i = 0; i < STATE_COUNT; ++i) {

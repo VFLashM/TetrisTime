@@ -1,8 +1,3 @@
-additions:
-
-seconds
-
-
 optimizations:
 
 date non-rendering
@@ -12,7 +7,9 @@ tracking rendering
 
 missing:
 
+seconds
 am/pm
+battery charging animation
 battery 20/10?
 animation on date change
 configurable animations (timeout/period ticks/periods)

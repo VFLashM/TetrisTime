@@ -49,6 +49,7 @@ typedef enum {
 
 typedef enum {
     DWF_MARKED,
+    DWF_LETTER,
     DWF_TEXT,
     DWF_NO_WEEKDAY,
     DWF_MAX,
