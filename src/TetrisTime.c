@@ -481,9 +481,6 @@ static void on_settings_changed() {
 
     int offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2;
     if (s_settings[DATE_MODE] != DM_NONE) {
-        for (int i = 0; i < DWF_MAX; ++i) {
-            APP_LOG(APP_LOG_LEVEL_INFO, "arrrar %d: %d %d %d", i, s_settings[DATE_WEEKDAY_FORMAT], s_time_date_offsets[s_settings[DATE_WEEKDAY_FORMAT]], s_time_date_offsets[i]);
-        }
         offset_y += s_time_date_offsets[s_settings[DATE_WEEKDAY_FORMAT]];
     }
     for (int i = 0; i < STATE_COUNT; ++i) {
