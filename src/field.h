@@ -113,5 +113,5 @@ static void field_flush(Layer* layer, GContext* ctx) {
         }
     }
 
-    log_field_state();
+    //log_field_state();
 }
