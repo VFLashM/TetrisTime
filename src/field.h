@@ -41,6 +41,50 @@ static void field_draw(int x, int y, PaletteColor color) {
     }
 }
 
+static void log_field_state() {
+    static char outbuf[2048];
+    char* out = outbuf;
+    time_t seconds;
+    uint16_t mseconds = time_ms(&seconds, 0);
+    int color = s_last_field[0][0];
+    int color_count = 0;
+    const int max_color_count = '~' - '"';
+
+    // fill
+    *out++ = '!';
+    //*out++ = '"' + (seconds % 100);
+    //*out++ = '"' + ((mseconds / 10) % 100);
+    *out++ = '0' + color;
+    for (int j = 0; j < FIELD_HEIGHT; ++j) {
+        for (int i = 0; i < FIELD_WIDTH; ++i) {
+            if (s_last_field[j][i] == color && color_count < max_color_count) {
+                color_count += 1;
+            } else {
+                *out++ = '"' + color_count;
+                if ((color_count == max_color_count) != (s_last_field[j][i] == color)) {
+                    *out++ = '"';
+                }
+                color = s_last_field[j][i];
+                color_count = 1;
+            }
+        }
+    }
+    if (color_count) {
+        *out++ = '"' + color_count;
+    }
+    *out++ = '!';
+
+    // print
+    *out = 0;
+    out = outbuf;
+    const int line_len = 60;
+    while ((int)strlen(out) > line_len) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "%.*s", line_len, out);
+        out += line_len;
+    }
+    APP_LOG(APP_LOG_LEVEL_ERROR, "%s", out);
+}
+
 static void field_flush(Layer* layer, GContext* ctx) {
     GRect rect;
     
@@ -68,4 +112,6 @@ static void field_flush(Layer* layer, GContext* ctx) {
             s_next_field[j][i] = s_field_bg_color;
         }
     }
+
+    log_field_state();
 }
