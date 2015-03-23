@@ -1,13 +1,6 @@
-misc:
-
-animation record
-animation assembly
-new description
-new pictures
-
 optimizations:
 
-date non-rendering
+not updating date
 baked tetriminos
 tracking rendering
 
