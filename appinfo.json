@@ -4,8 +4,8 @@
     "longName": "TetrisTime",
     "capabilities": [ "configurable" ],
     "companyName": "vflashm",
-    "versionCode": 12,
-    "versionLabel": "1.2",
+    "versionCode": 20,
+    "versionLabel": "2.0",
     "watchapp": {
         "watchface": true
     },
