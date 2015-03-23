@@ -96,7 +96,11 @@ for line in f:
         continue
     
     line = line[-1]
-    if image_lines:
+        
+    if image_lines is None and line.startswith('!'):
+        image_lines = []
+        
+    if image_lines is not None:
         image_lines.append(line)
         if line.endswith('!'):
             try:
@@ -105,9 +109,6 @@ for line in f:
                 pass
             idx += 1
             image_lines = None
-        
-    elif line.startswith('!'):
-        image_lines = [line]
 
 paths = sorted(os.listdir('.'))
 paths = [p for p in paths if p.startswith('screenshot_')]
