@@ -535,6 +535,7 @@ static void in_received_handler(DictionaryIterator* iter, void* context)
     settings_read(iter);
     APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
     on_settings_changed();
+    settings_send(); // push back filtered/updated settings
 }
 
 static void main_window_load(Window* window) {
