@@ -21,6 +21,7 @@ typedef enum {
     NOTIFICATION_CONNECTED,
 
     SKIP_INITIAL_ANIMATION,
+    NOTIFICATION_HOURLY,
     
     MAX_KEY,
 } SettingsKey;

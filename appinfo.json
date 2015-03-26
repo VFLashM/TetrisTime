@@ -22,7 +22,8 @@
         "ICON_BATTERY": 9,
         "NOTIFICATION_DISCONNECTED": 10,
         "NOTIFICATION_CONNECTED": 11,
-        "SKIP_INITIAL_ANIMATION": 12
+        "SKIP_INITIAL_ANIMATION": 12,
+        "NOTIFICATION_HOURLY": 13
     },
     "resources": {
         "media": [
