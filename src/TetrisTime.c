@@ -161,44 +161,52 @@ static void state_step(DigitState* state) {
 }
 
 static void draw_weekday_line(int height, PaletteColor color) {
-    const Bitmap* bmp = &s_weekdays[s_weekday];
+    const Bitmap* weekdays = s_settings[LARGE_DATE_FONT] ? s_large_weekdays : s_small_weekdays;
+    const Bitmap* bmp = &weekdays[s_weekday];
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
 }
 
 static void draw_marked_weekday_line(int height, PaletteColor color, int use_letter) {
+    const Bitmap* marked_weekdays = s_settings[LARGE_DATE_FONT] ? s_large_marked_weekdays : s_small_marked_weekdays;
+    
     const int first_weekday = s_settings[DATE_FIRST_WEEKDAY];
     int width = 0;
     for (int i = 0; i < 7; ++i) {
         const int day = (first_weekday + i) % 7;
         const int bmp_idx = (day == s_weekday) ? (use_letter ? day : 8) : 7;
-        width += s_marked_weekdays[bmp_idx].width;
+        width += marked_weekdays[bmp_idx].width;
     }
     int offset = (FIELD_WIDTH - width + 1) / 2;
     for (int i = 0; i < 7; ++i) {
         const int day = (first_weekday + i) % 7;
         const int bmp_idx = (day == s_weekday) ? (use_letter ? day : 8) : 7;
-        draw_bitmap_move(&offset, &s_marked_weekdays[bmp_idx], height, color, 0);
+        draw_bitmap_move(&offset, &marked_weekdays[bmp_idx], height, color, 0);
     }
 }
 
 static void draw_date_line(int height, PaletteColor color) {
     const DateMonthFormat dmf = s_settings[DATE_MONTH_FORMAT];
+
+    const Bitmap* months = s_settings[LARGE_DATE_FONT] ? s_large_months : s_small_months;
+    const Bitmap* weekdays = s_settings[LARGE_DATE_FONT] ? s_large_weekdays : s_small_weekdays;
+    const Bitmap* bmp_digits = s_settings[LARGE_DATE_FONT] ? s_bmp_large_digits : s_bmp_small_digits;
+    const int bmp_digit_width = s_settings[LARGE_DATE_FONT] ? BMP_LARGE_DIGIT_WIDTH : BMP_SMALL_DIGIT_WIDTH;
     
     // digit
-    int width = BMP_DIGIT_WIDTH;
+    int width = bmp_digit_width;
     if (s_day >= 10) {
-        width += 1 + BMP_DIGIT_WIDTH;
+        width += 1 + bmp_digit_width;
     }
 
     // month
     switch (dmf) {
     case DMF_MONTH_BEFORE:
     case DMF_MONTH_AFTER:
-        width += s_months[s_month].width + DATE_SPACING;
+        width += months[s_month].width + DATE_SPACING;
         break;
     case DMF_WEEKDAY_BEFORE:
     case DMF_WEEKDAY_AFTER:
-        width += s_weekdays[s_weekday].width + DATE_SPACING;
+        width += weekdays[s_weekday].width + DATE_SPACING;
         break;
     default:
         break;
@@ -208,22 +216,22 @@ static void draw_date_line(int height, PaletteColor color) {
     
     // month before
     if (dmf == DMF_MONTH_BEFORE) {
-        draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &months[s_month], height, color, DATE_SPACING);
     } else if (dmf == DMF_WEEKDAY_BEFORE) {
-        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &weekdays[s_weekday], height, color, DATE_SPACING);
     }
 
     // date
     if (s_day >= 10) {
-        draw_bitmap_move(&offset, &s_bmp_digits[s_day / 10], height, color, 1);
+        draw_bitmap_move(&offset, &bmp_digits[s_day / 10], height, color, 1);
     }
-    draw_bitmap_move(&offset, &s_bmp_digits[s_day % 10], height, color, DATE_SPACING);
+    draw_bitmap_move(&offset, &bmp_digits[s_day % 10], height, color, DATE_SPACING);
 
     // month after
     if (dmf == DMF_MONTH_AFTER) {
-        draw_bitmap_move(&offset, &s_months[s_month], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &months[s_month], height, color, DATE_SPACING);
     } else if (dmf == DMF_WEEKDAY_AFTER) {
-        draw_bitmap_move(&offset, &s_weekdays[s_weekday], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &weekdays[s_weekday], height, color, DATE_SPACING);
     }
 }
 
@@ -250,9 +258,10 @@ static void draw_date() {
     } else {
         date_color = s_fg_color;
     }
-    
+
+    const int bmp_height = s_settings[LARGE_DATE_FONT] ? BMP_LARGE_HEIGHT : BMP_SMALL_HEIGHT;
     const int first_line_height = split_height + SPLIT_TO_DATE_SPACING;
-    const int second_line_height = first_line_height + BMP_HEIGHT + DATE_LINE_SPACING;
+    const int second_line_height = first_line_height + bmp_height + DATE_LINE_SPACING;
     const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
     
     draw_date_line(first_line_height, date_color);
@@ -578,6 +587,7 @@ static void init() {
     }
     
 #if USE_RAW_DIGITS == 1
+    bitmap_check_all();
     for (int i = 0; i < DIGIT_COUNT; ++i) {
         DigitDef def;
         if (!parse_raw_digit(&def, &s_raw_digits[i])) {

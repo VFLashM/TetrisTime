@@ -22,6 +22,8 @@ typedef enum {
 
     SKIP_INITIAL_ANIMATION,
     NOTIFICATION_HOURLY,
+
+    LARGE_DATE_FONT,
     
     MAX_KEY,
 } SettingsKey;

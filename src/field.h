@@ -44,8 +44,8 @@ static void field_draw(int x, int y, PaletteColor color) {
 static void log_field_state() {
     static char outbuf[2048];
     char* out = outbuf;
-    time_t seconds;
-    uint16_t mseconds = time_ms(&seconds, 0);
+    //time_t seconds;
+    //uint16_t mseconds = time_ms(&seconds, 0);
     int color = s_last_field[0][0];
     int color_count = 0;
     const int max_color_count = '~' - '"';

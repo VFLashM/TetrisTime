@@ -23,7 +23,8 @@
         "NOTIFICATION_DISCONNECTED": 10,
         "NOTIFICATION_CONNECTED": 11,
         "SKIP_INITIAL_ANIMATION": 12,
-        "NOTIFICATION_HOURLY": 13
+        "NOTIFICATION_HOURLY": 13,
+        "LARGE_DATE_FONT": 14
     },
     "resources": {
         "media": [
