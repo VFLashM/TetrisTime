@@ -24,6 +24,20 @@ typedef enum {
     NOTIFICATION_HOURLY,
 
     LARGE_DATE_FONT,
+
+    CUSTOM_DATE,
+    CUSTOM_TIME_OFFSET,
+    CUSTOM_TIME_DATE_SPACING_1,
+    CUSTOM_TIME_DATE_SPACING_2,
+    CUSTOM_DATE_WORD_SPACING,
+    CUSTOM_DATE_LINE_SPACING,
+
+    CUSTOM_ANIMATIONS,
+    CUSTOM_ANIMATION_TIMEOUT_MS,
+    CUSTOM_ANIMATION_PERIOD_VIS_FRAMES,
+    CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES,
+    CUSTOM_ANIMATION_PERIOD_COUNT,
+    CUSTOM_ANIMATION_DATE_PERIOD_FRAMES,
     
     MAX_KEY,
 } SettingsKey;
@@ -94,6 +108,42 @@ static void settings_apply(const int* new_settings) {
         if (dmf == DMF_WEEKDAY_BEFORE || dmf == DMF_WEEKDAY_AFTER) {
             s_settings[DATE_WEEKDAY_FORMAT] = DWF_NO_WEEKDAY;
         }
+    }
+
+    // fix custom values
+    if (!s_settings[CUSTOM_DATE]) {
+        if (s_settings[DATE_MODE] != DM_NONE) {
+            const int large_font = s_settings[LARGE_DATE_FONT];
+            switch (s_settings[DATE_WEEKDAY_FORMAT]) {
+            case DWF_MARKED:
+                s_settings[CUSTOM_TIME_OFFSET] = large_font ? 2 : 1;
+                break;
+            case DWF_LETTER:
+                s_settings[CUSTOM_TIME_OFFSET] = large_font ? 3 : 2;
+                break;
+            case DWF_TEXT:
+                s_settings[CUSTOM_TIME_OFFSET] = large_font ? 4 : 2;
+                break;
+            default:
+            case DWF_NO_WEEKDAY:
+                s_settings[CUSTOM_TIME_OFFSET] = 1;
+                break;
+            }
+        } else {
+            s_settings[CUSTOM_TIME_OFFSET] = 0;
+        }
+        s_settings[CUSTOM_TIME_DATE_SPACING_1] = 2;
+        s_settings[CUSTOM_TIME_DATE_SPACING_2] = 2;
+        s_settings[CUSTOM_DATE_WORD_SPACING] = 3;
+        s_settings[CUSTOM_DATE_LINE_SPACING] = 2;
+    }
+
+    if (!s_settings[CUSTOM_ANIMATIONS]) {
+        s_settings[CUSTOM_ANIMATION_TIMEOUT_MS] = 100;
+        s_settings[CUSTOM_ANIMATION_PERIOD_VIS_FRAMES] = 2;
+        s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES] = 1;
+        s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] = 3;
+        s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES] = 4;
     }
 }
 

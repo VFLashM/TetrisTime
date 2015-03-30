@@ -7,25 +7,11 @@
 
 // real const
 #define STATE_COUNT 5
+#define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
 
 // debug settings
 #define DYNAMIC_ASSEMBLY 0
 #define BIDIRECTIONAL_SYNC 0
-
-// animation settings
-#define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
-#define ANIMATION_PERIOD_INVIS_FRAMES 1
-#define ANIMATION_PERIOD_VIS_FRAMES 2
-#define ANIMATION_PERIOD_FRAMES (ANIMATION_PERIOD_INVIS_FRAMES + ANIMATION_PERIOD_VIS_FRAMES)
-#define ANIMATION_PERIODS 3
-#define ANIMATION_TIMEOUT_MS 100
-#define ANIMATION_DATE_FRAMES 4
-
-// datetime format settings
-#define TIME_TO_SPLIT_SPACING 2
-#define SPLIT_TO_DATE_SPACING 2
-#define DATE_SPACING 3
-#define DATE_LINE_SPACING 2
 
 typedef struct {
     int offset_x;
@@ -63,12 +49,11 @@ static Layer* s_layer;
 static DigitState s_states[STATE_COUNT];
 static int s_date_frame;
 
-static const int s_time_date_offsets[DWF_MAX] = { -2, -3, -4, -2 };
-
 static void state_step(DigitState* state) {
     if (!state->falling) {
         if (state->next_value != state->target_value) {
-            if (state->vanishing_frame > ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES) {
+            const int animation_period_frames = s_settings[CUSTOM_ANIMATION_PERIOD_VIS_FRAMES] + s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES];
+            if (state->vanishing_frame > s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * animation_period_frames) {
                 //APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
                 state->target_value = state->next_value;
                 if (DYNAMIC_ASSEMBLY) {
@@ -198,15 +183,17 @@ static void draw_date_line(int height, PaletteColor color) {
         width += 1 + bmp_digit_width;
     }
 
+    const int date_word_spacing = s_settings[CUSTOM_DATE_WORD_SPACING];
+
     // month
     switch (dmf) {
     case DMF_MONTH_BEFORE:
     case DMF_MONTH_AFTER:
-        width += months[s_month].width + DATE_SPACING;
+        width += months[s_month].width + date_word_spacing;
         break;
     case DMF_WEEKDAY_BEFORE:
     case DMF_WEEKDAY_AFTER:
-        width += weekdays[s_weekday].width + DATE_SPACING;
+        width += weekdays[s_weekday].width + date_word_spacing;
         break;
     default:
         break;
@@ -216,27 +203,27 @@ static void draw_date_line(int height, PaletteColor color) {
     
     // month before
     if (dmf == DMF_MONTH_BEFORE) {
-        draw_bitmap_move(&offset, &months[s_month], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &months[s_month], height, color, date_word_spacing);
     } else if (dmf == DMF_WEEKDAY_BEFORE) {
-        draw_bitmap_move(&offset, &weekdays[s_weekday], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &weekdays[s_weekday], height, color, date_word_spacing);
     }
 
     // date
     if (s_day >= 10) {
         draw_bitmap_move(&offset, &bmp_digits[s_day / 10], height, color, 1);
     }
-    draw_bitmap_move(&offset, &bmp_digits[s_day % 10], height, color, DATE_SPACING);
+    draw_bitmap_move(&offset, &bmp_digits[s_day % 10], height, color, date_word_spacing);
 
     // month after
     if (dmf == DMF_MONTH_AFTER) {
-        draw_bitmap_move(&offset, &months[s_month], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &months[s_month], height, color, date_word_spacing);
     } else if (dmf == DMF_WEEKDAY_AFTER) {
-        draw_bitmap_move(&offset, &weekdays[s_weekday], height, color, DATE_SPACING);
+        draw_bitmap_move(&offset, &weekdays[s_weekday], height, color, date_word_spacing);
     }
 }
 
 static int get_final_date_split_height() {
-    return s_states[0].offset_y + DIGIT_HEIGHT + TIME_TO_SPLIT_SPACING;
+    return s_states[0].offset_y + DIGIT_HEIGHT + s_settings[CUSTOM_TIME_DATE_SPACING_1];
 }
 
 static void draw_date() {
@@ -244,8 +231,9 @@ static void draw_date() {
     if (dm == DM_NONE) {
         return;
     }
-    
-    const int split_height = get_final_date_split_height() + (s_date_frame + ANIMATION_DATE_FRAMES - 1) / ANIMATION_DATE_FRAMES;
+
+    const int date_period_frames = s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES];
+    const int split_height = get_final_date_split_height() + (s_date_frame + date_period_frames - 1) / date_period_frames;
 
     PaletteColor date_color;
     if (dm == DM_INVERTED) {
@@ -260,8 +248,8 @@ static void draw_date() {
     }
 
     const int bmp_height = s_settings[LARGE_DATE_FONT] ? BMP_LARGE_HEIGHT : BMP_SMALL_HEIGHT;
-    const int first_line_height = split_height + SPLIT_TO_DATE_SPACING;
-    const int second_line_height = first_line_height + bmp_height + DATE_LINE_SPACING;
+    const int first_line_height = split_height + s_settings[CUSTOM_TIME_DATE_SPACING_2];
+    const int second_line_height = first_line_height + bmp_height + s_settings[CUSTOM_DATE_LINE_SPACING];
     const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
     
     draw_date_line(first_line_height, date_color);
@@ -303,8 +291,9 @@ static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y) {
 
 static void draw_digit_state(const DigitState* state) {
     if (state->vanishing_frame) {
-        const int in_period = (state->vanishing_frame - 1) % ANIMATION_PERIOD_FRAMES;
-        if (in_period < ANIMATION_PERIOD_INVIS_FRAMES) {
+        const int animation_period_frames = s_settings[CUSTOM_ANIMATION_PERIOD_VIS_FRAMES] + s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES];
+        const int in_period = (state->vanishing_frame - 1) % animation_period_frames;
+        if (in_period < s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES]) {
             return;
         }
     }
@@ -368,7 +357,7 @@ static void process_animation(void* data) {
     }
     layer_mark_dirty(s_layer);
     if (is_animating()) {
-        app_timer_register(ANIMATION_TIMEOUT_MS, process_animation, NULL);
+        app_timer_register(s_settings[CUSTOM_ANIMATION_TIMEOUT_MS], process_animation, NULL);
     } else {
         s_animating = 0;
     }
@@ -494,7 +483,7 @@ static void on_settings_changed() {
 
     int offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2;
     if (s_settings[DATE_MODE] != DM_NONE) {
-        offset_y += s_time_date_offsets[s_settings[DATE_WEEKDAY_FORMAT]];
+        offset_y -= s_settings[CUSTOM_TIME_OFFSET];
     }
     for (int i = 0; i < STATE_COUNT; ++i) {
         s_states[i].offset_y = offset_y;
@@ -509,7 +498,7 @@ static void on_settings_changed() {
     }
 
     if (!s_settings[SKIP_INITIAL_ANIMATION]) {
-        s_date_frame = (FIELD_HEIGHT - get_final_date_split_height()) * ANIMATION_DATE_FRAMES;
+        s_date_frame = (FIELD_HEIGHT - get_final_date_split_height()) * s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES];
     } else {
         s_date_frame = 0;
     }
@@ -565,7 +554,8 @@ static void main_window_load(Window* window) {
     if (s_settings[SKIP_INITIAL_ANIMATION]) {
         for (int i = 0; i < STATE_COUNT; ++i) {
             // skip vanishing animation
-            s_states[i].vanishing_frame = ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES + 1;
+            const int animation_period_frames = s_settings[CUSTOM_ANIMATION_PERIOD_VIS_FRAMES] + s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES];
+            s_states[i].vanishing_frame = s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * animation_period_frames + 1;
             state_step(&s_states[i]);
             s_states[i].current = s_states[i].target;
         }
@@ -606,7 +596,7 @@ static void init() {
         s_states[i].next_value = -1;
         s_states[i].target_value = -1;
         // it looks better WITH vanishing animation
-        //s_states[i].vanishing_frame = ANIMATION_PERIODS * ANIMATION_PERIOD_FRAMES + 1;
+        //s_states[i].vanishing_frame = s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * ANIMATION_PERIOD_FRAMES + 1;
     }
     s_states[4].restricted_spawn_width = 1;
     
