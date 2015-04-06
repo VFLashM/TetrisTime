@@ -97,6 +97,8 @@ static int settings_get_default(SettingsKey key, int last_version) {
     }
 }
 
+#define MAKE_IN_RANGE(v, min, max) s_settings[v] = ((s_settings[v] < min) ? min : (s_settings[v] > max ? max : s_settings[v]))
+
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
     const int last_version = s_settings[VERSION];
@@ -120,6 +122,11 @@ static int settings_apply(const int* new_settings) {
     s_settings[ICON_BATTERY] %= 2;
     s_settings[NOTIFICATION_DISCONNECTED] %= NTF_MAX;
     s_settings[NOTIFICATION_CONNECTED] %= NTF_MAX;
+    s_settings[SKIP_INITIAL_ANIMATION] %= 2;
+    s_settings[NOTIFICATION_HOURLY] %= NTF_MAX;
+    s_settings[LARGE_DATE_FONT] %= 2;
+    s_settings[CUSTOM_DATE] %= 2;
+    s_settings[CUSTOM_ANIMATIONS] %= 2;
 
     // disable duplicated text weekday
     if (s_settings[DATE_WEEKDAY_FORMAT] == DWF_TEXT) {
@@ -155,6 +162,12 @@ static int settings_apply(const int* new_settings) {
         s_settings[CUSTOM_TIME_DATE_SPACING_2] = 2;
         s_settings[CUSTOM_DATE_WORD_SPACING] = 3;
         s_settings[CUSTOM_DATE_LINE_SPACING] = 2;
+    } else {
+        MAKE_IN_RANGE(CUSTOM_TIME_OFFSET, 0, 20);
+        MAKE_IN_RANGE(CUSTOM_TIME_DATE_SPACING_1, 0, 20);
+        MAKE_IN_RANGE(CUSTOM_TIME_DATE_SPACING_2, 0, 20);
+        MAKE_IN_RANGE(CUSTOM_DATE_WORD_SPACING, 0, 20);
+        MAKE_IN_RANGE(CUSTOM_DATE_LINE_SPACING, 0, 20);
     }
 
     if (!s_settings[CUSTOM_ANIMATIONS]) {
@@ -163,6 +176,12 @@ static int settings_apply(const int* new_settings) {
         s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES] = 1;
         s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] = 3;
         s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES] = 4;
+    } else {
+        MAKE_IN_RANGE(CUSTOM_ANIMATION_TIMEOUT_MS, 10, 10000);
+        MAKE_IN_RANGE(CUSTOM_ANIMATION_PERIOD_VIS_FRAMES, 1, 20);
+        MAKE_IN_RANGE(CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES, 1, 20);
+        MAKE_IN_RANGE(CUSTOM_ANIMATION_PERIOD_COUNT, 0, 20);
+        MAKE_IN_RANGE(CUSTOM_ANIMATION_DATE_PERIOD_FRAMES, 1, 20);
     }
 
     for (int i = 0; i < MAX_KEY; ++i) {
@@ -196,8 +215,9 @@ static void settings_load_persistent() {
     Settings new_settings;
     for (int i = 0; i < MAX_KEY; ++i) {
         new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
+        //APP_LOG(APP_LOG_LEVEL_INFO, "Got %d=%d", i, new_settings[i]);
     }
-    
+
     if (settings_apply(new_settings)) {
         settings_save_persistent();
         settings_send();
@@ -210,7 +230,7 @@ static void settings_read(DictionaryIterator* iter)
     Settings new_settings;
     memcpy(&new_settings, &s_settings, sizeof(Settings));
     
-    Tuple* t = dict_read_first(iter);
+    const Tuple* t = dict_read_first(iter);
     while (t) {
         if (t->key < MAX_KEY) {
             switch (t->type) {

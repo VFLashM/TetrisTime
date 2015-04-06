@@ -250,7 +250,7 @@ static void draw_date() {
     const int first_line_height = split_height + s_settings[CUSTOM_TIME_DATE_SPACING_2];
     const int second_line_height = first_line_height + bmp_height + s_settings[CUSTOM_DATE_LINE_SPACING];
     const DateWeekdayFormat dwf = s_settings[DATE_WEEKDAY_FORMAT];
-    
+
     draw_date_line(first_line_height, date_color);
     switch(dwf) {
     case DWF_MARKED:
