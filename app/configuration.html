@@ -33,6 +33,7 @@
             }
           }
         }
+        $(".advanced_checkbox").each(function (index) { this.onclick(); } )
       }
       function save() {
         $("input:radio:checked").each(function (index) {
@@ -41,6 +42,13 @@
         $("input:checkbox").each(function (index) {
           options[this.id] = Number(this.checked);
         })
+        $("input:text").each(function (index) {
+          if ($(this).is(":visible")) {
+            if ($.isNumeric(this.value)) {
+              options[this.id] = Number(this.value);
+            }
+          } 
+        })
         console.log("Save: " + JSON.stringify(options));
         document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
       }
@@ -48,6 +56,14 @@
         console.log("Cancel");
         document.location = "pebblejs://close";
       }
+      function set_visible(target, value) {
+        console.log("Making " + target + " visible=" + value)
+        if (value) {
+          $("." + target).show(500)
+        } else {
+          $("." + target).hide(500)
+        }
+      }   
     </script>
   </head>
   <body onload="parse_options()">
@@ -91,13 +107,13 @@
         <fieldset data-role="controlgroup">
           <legend><h3>Date first line format</h3></legend>
           <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_0" value="0" checked="checked" type="radio">
-          <label for="DATE_MONTH_FORMAT_0">Month and day</label>
+          <label for="DATE_MONTH_FORMAT_0">Month and date</label>
           <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_1" value="1" type="radio">
-          <label for="DATE_MONTH_FORMAT_1">Day and month</label>
+          <label for="DATE_MONTH_FORMAT_1">Date and month</label>
           <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_2" value="2" type="radio">
-          <label for="DATE_MONTH_FORMAT_2">Weekday and day</label>
+          <label for="DATE_MONTH_FORMAT_2">Weekday and date</label>
           <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_3" value="3" type="radio">
-          <label for="DATE_MONTH_FORMAT_3">Day and weekday</label>
+          <label for="DATE_MONTH_FORMAT_3">Date and weekday</label>
         </fieldset>
         <fieldset data-role="controlgroup">
           <legend><h3>Date second line format</h3></legend>
@@ -146,7 +162,7 @@
           <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_3" value="3" type="radio">
           <label for="NOTIFICATION_CONNECTED_3">Double</label>
         </fieldset>
-        <fieldset data-role="controlgroup" data-type="horizontal">
+        <fieldset id="dest" data-role="controlgroup" data-type="horizontal">
           <legend><h3>Hourly notification vibration</h3></legend>
           <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_0" value="0" checked="checked" type="radio">
           <label for="NOTIFICATION_HOURLY_0">None</label>
@@ -157,7 +173,40 @@
           <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_3" value="3" type="radio">
           <label for="NOTIFICATION_HOURLY_3">Double</label>
         </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Advanced settings</h3></legend>
+          <input id="CUSTOM_DATE" type="checkbox" onclick="set_visible('custom_date', this.checked)" class="advanced_checkbox">
+          <label for="CUSTOM_DATE">Custom date offsets</label>
+          
+          <input id="CUSTOM_ANIMATIONS" type="checkbox" onclick="set_visible('custom_animations', this.checked)"  class="advanced_checkbox">
+          <label for="CUSTOM_ANIMATIONS">Custom animation settings</label>
+        </fieldset>
+        <fieldset data-role="controlgroup" class="custom_date">
+          <label for="CUSTOM_TIME_OFFSET">Vertical time offset:</label>
+          <input id="CUSTOM_TIME_OFFSET" type="text" size="1" value="2">
+          <label for="CUSTOM_TIME_DATE_SPACING_1">Spacing between time and date/time split</label>
+          <input id="CUSTOM_TIME_DATE_SPACING_1" type="text" size="1" value="2">
+          <label for="CUSTOM_TIME_DATE_SPACING_2">Spacing between date and date/time split</label>
+          <input id="CUSTOM_TIME_DATE_SPACING_2" type="text" size="1" value="2">
+          <label for="CUSTOM_DATE_WORD_SPACING">Date word spacing</label>
+          <input id="CUSTOM_DATE_WORD_SPACING" type="text" size="1" value="3">
+          <label for="CUSTOM_DATE_LINE_SPACING">Date line spacing</label>
+          <input id="CUSTOM_DATE_LINE_SPACING" type="text" size="1" value="2">
+        </fieldset>
+        <fieldset data-role="controlgroup" class="custom_animations">
+          <label for="CUSTOM_ANIMATION_TIMEOUT_MS">Animation timeout in ms:</label>
+          <input id="CUSTOM_ANIMATION_TIMEOUT_MS" type="text" size="4" value="100">
+          <label for="CUSTOM_ANIMATION_PERIOD_VIS_FRAMES">Vanishing animation inivisble frames:</label>
+          <input id="CUSTOM_ANIMATION_PERIOD_VIS_FRAMES" type="text" size="1" value="2">
+          <label for="CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES">Vanishing animation visible frames:</label>
+          <input id="CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES" type="text" size="1" value="1">
+          <label for="CUSTOM_ANIMATION_PERIOD_COUNT">Vanishing animation period count:</label>
+          <input id="CUSTOM_ANIMATION_PERIOD_COUNT" type="text" size="1" value="3">
+          <label for="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES">Date appearance animation step frames:</label>
+          <input id="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES" type="text" size="1" value="4">
+        </fieldset>
       </div>
+      
       <div>
         <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
         <div class="ui-block-a" style="float:right;margin:10"><button type="submit" data-theme="d" id="cancel" onclick="cancel()">Cancel</button></div>
