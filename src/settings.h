@@ -84,9 +84,24 @@ typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
 
+static int settings_get_default(SettingsKey key) {
+    switch (key) {
+    case DATE_WEEKDAY_FORMAT:
+        return DWF_TEXT;
+    case NOTIFICATION_DISCONNECTED:
+        return NTF_DOUBLE_PULSE;
+    default:
+        return 0;
+    }
+}
+
 static void settings_apply(const int* new_settings) {
     for (int i = 0; i < MAX_KEY; ++i) {
-        s_settings[i] = new_settings[i];
+        if (new_settings[i] < 0) {
+            s_settings[i] = settings_get_default(i);
+        } else {
+            s_settings[i] = new_settings[i];
+        }
     }
     
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
@@ -150,7 +165,7 @@ static void settings_apply(const int* new_settings) {
 static void settings_load_persistent() {
     Settings new_settings;
     for (int i = 0; i < MAX_KEY; ++i) {
-        new_settings[i] = persist_read_int(i);
+        new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
     }
     settings_apply(new_settings);
 }
