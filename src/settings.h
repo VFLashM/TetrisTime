@@ -95,7 +95,8 @@ static int settings_get_default(SettingsKey key) {
     }
 }
 
-static void settings_apply(const int* new_settings) {
+// returns true if resulting settings differ from input settings
+static int settings_apply(const int* new_settings) {
     for (int i = 0; i < MAX_KEY; ++i) {
         if (new_settings[i] < 0) {
             s_settings[i] = settings_get_default(i);
@@ -160,14 +161,26 @@ static void settings_apply(const int* new_settings) {
         s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] = 3;
         s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES] = 4;
     }
+
+    for (int i = 0; i < MAX_KEY; ++i) {
+        if (s_settings[i] != new_settings[i]) {
+            return 1;
+        }
+    }
+    return 0
 }
 
 static void settings_load_persistent() {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reading persistent settings");
     Settings new_settings;
     for (int i = 0; i < MAX_KEY; ++i) {
         new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
     }
-    settings_apply(new_settings);
+    
+    if (settings_apply(new_settings)) {
+        settings_save_persistent();
+        settings_send();
+    }
 }
 
 static void settings_save_persistent() {
@@ -177,6 +190,7 @@ static void settings_save_persistent() {
 }
 
 static void settings_send() {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Sending settings");
     DictionaryIterator* it;
     app_message_outbox_begin(&it);
 
@@ -189,6 +203,7 @@ static void settings_send() {
 
 static void settings_read(DictionaryIterator* iter) 
 {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reading js settings");
     Settings new_settings;
     memcpy(&new_settings, &s_settings, sizeof(Settings));
     
@@ -209,6 +224,8 @@ static void settings_read(DictionaryIterator* iter)
         t = dict_read_next(iter);
     }
 
-    settings_apply(new_settings);
+    if (settings_apply(new_settings)) {
+        settings_send();
+    }
     settings_save_persistent();
 }

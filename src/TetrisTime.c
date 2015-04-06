@@ -11,7 +11,6 @@
 
 // debug settings
 #define DYNAMIC_ASSEMBLY 0
-#define BIDIRECTIONAL_SYNC 0
 
 typedef struct {
     int offset_x;
@@ -535,9 +534,7 @@ static void on_settings_changed() {
 static void in_received_handler(DictionaryIterator* iter, void* context)
 {
     settings_read(iter);
-    APP_LOG(APP_LOG_LEVEL_INFO, "Received settings");
     on_settings_changed();
-    settings_send(); // push back filtered/updated settings
 }
 
 static void main_window_load(Window* window) {
@@ -569,12 +566,9 @@ static void main_window_unload(Window* window) {
 static void init() {
     srand(time(NULL));
 
-    settings_load_persistent();
     app_message_register_inbox_received(in_received_handler);
     app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-    if (BIDIRECTIONAL_SYNC) {
-        settings_send();
-    }
+    settings_load_persistent();
     
 #if USE_RAW_DIGITS == 1
     bitmap_check_all();
