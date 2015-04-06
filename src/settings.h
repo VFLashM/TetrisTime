@@ -1,6 +1,6 @@
 #include "pebble.h"
 
-#define SETTINGS_VERSION_VALUE 1
+#define SETTINGS_VERSION_VALUE 2
 
 // I should've used a prefix =/
 typedef enum {
@@ -84,12 +84,14 @@ typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
 
-static int settings_get_default(SettingsKey key) {
+static int settings_get_default(SettingsKey key, int last_version) {
     switch (key) {
     case DATE_WEEKDAY_FORMAT:
         return DWF_TEXT;
     case NOTIFICATION_DISCONNECTED:
         return NTF_DOUBLE_PULSE;
+    case LARGE_DATE_FONT:
+        return (last_version == 1) ? 1 : 0; // for version 1 large date was the default
     default:
         return 0;
     }
@@ -97,9 +99,10 @@ static int settings_get_default(SettingsKey key) {
 
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
+    const int last_version = s_settings[VERSION];
     for (int i = 0; i < MAX_KEY; ++i) {
         if (new_settings[i] < 0) {
-            s_settings[i] = settings_get_default(i);
+            s_settings[i] = settings_get_default(i, last_version);
         } else {
             s_settings[i] = new_settings[i];
         }
@@ -167,20 +170,7 @@ static int settings_apply(const int* new_settings) {
             return 1;
         }
     }
-    return 0
-}
-
-static void settings_load_persistent() {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Reading persistent settings");
-    Settings new_settings;
-    for (int i = 0; i < MAX_KEY; ++i) {
-        new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
-    }
-    
-    if (settings_apply(new_settings)) {
-        settings_save_persistent();
-        settings_send();
-    }
+    return 0;
 }
 
 static void settings_save_persistent() {
@@ -199,6 +189,19 @@ static void settings_send() {
     }
  
     app_message_outbox_send();
+}
+
+static void settings_load_persistent() {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reading persistent settings");
+    Settings new_settings;
+    for (int i = 0; i < MAX_KEY; ++i) {
+        new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
+    }
+    
+    if (settings_apply(new_settings)) {
+        settings_save_persistent();
+        settings_send();
+    }
 }
 
 static void settings_read(DictionaryIterator* iter) 
