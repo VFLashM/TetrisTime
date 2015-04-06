@@ -20,16 +20,12 @@
             options = JSON.parse(json_str);
 
             for (var key in options) {
-              var name = "#" + key + "_" + options[key];
-              console.log("checking " + name);
-              $(name).prop("checked", true);
+              var name = key + "_" + options[key];
+              $("input:radio[id='"+ name + "']").prop("checked", true).checkboxradio("refresh");
               if (Number(options[key]) != 0) {
-                  var name2 = "#" + key;
-                  console.log("checking " + name2);
-                  $(name2).prop("checked", true);
+                $("input:checkbox[id='"+ key + "']").prop("checked", true).checkboxradio("refresh");
               }
-              $("input[name='" + key + "']").checkboxradio("refresh");
-              $("input[id='"   + key + "']").checkboxradio("refresh");
+              $("input:text[id='"+ key + "']").prop("value", options[key])
             }
           }
         }
