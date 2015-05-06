@@ -597,7 +597,9 @@ static void init() {
     // init window
     s_window = window_create();
     window_set_window_handlers(s_window, (WindowHandlers) { .load = main_window_load, .unload = main_window_unload });
+    APP_LOG(APP_LOG_LEVEL_INFO, "Preinit");
     window_stack_push(s_window, true);
+    APP_LOG(APP_LOG_LEVEL_INFO, "Inited");
 }
 
 static void deinit() {

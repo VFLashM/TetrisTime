@@ -97,7 +97,7 @@ static int settings_get_default(SettingsKey key, int last_version) {
     }
 }
 
-#define MAKE_IN_RANGE(v, min, max) s_settings[v] = ((s_settings[v] < min) ? min : (s_settings[v] > max ? max : s_settings[v]))
+#define MAKE_IN_RANGE(v, min, max) v = (v < min ? min : (v > max ? max : v))
 
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
@@ -163,11 +163,11 @@ static int settings_apply(const int* new_settings) {
         s_settings[CUSTOM_DATE_WORD_SPACING] = 3;
         s_settings[CUSTOM_DATE_LINE_SPACING] = 2;
     } else {
-        MAKE_IN_RANGE(CUSTOM_TIME_OFFSET, 0, 20);
-        MAKE_IN_RANGE(CUSTOM_TIME_DATE_SPACING_1, 0, 20);
-        MAKE_IN_RANGE(CUSTOM_TIME_DATE_SPACING_2, 0, 20);
-        MAKE_IN_RANGE(CUSTOM_DATE_WORD_SPACING, 0, 20);
-        MAKE_IN_RANGE(CUSTOM_DATE_LINE_SPACING, 0, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_TIME_OFFSET], 0, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_TIME_DATE_SPACING_1], 0, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_TIME_DATE_SPACING_2], 0, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_DATE_WORD_SPACING], 0, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_DATE_LINE_SPACING], 0, 20);
     }
 
     if (!s_settings[CUSTOM_ANIMATIONS]) {
@@ -177,13 +177,13 @@ static int settings_apply(const int* new_settings) {
         s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] = 3;
         s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES] = 4;
     } else {
-        MAKE_IN_RANGE(CUSTOM_ANIMATION_TIMEOUT_MS, 10, 10000);
-        MAKE_IN_RANGE(CUSTOM_ANIMATION_PERIOD_VIS_FRAMES, 1, 20);
-        MAKE_IN_RANGE(CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES, 1, 20);
-        MAKE_IN_RANGE(CUSTOM_ANIMATION_PERIOD_COUNT, 0, 20);
-        MAKE_IN_RANGE(CUSTOM_ANIMATION_DATE_PERIOD_FRAMES, 1, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_ANIMATION_TIMEOUT_MS], 10, 10000);
+        MAKE_IN_RANGE(s_settings[CUSTOM_ANIMATION_PERIOD_VIS_FRAMES], 1, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES], 1, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_ANIMATION_PERIOD_COUNT], 0, 20);
+        MAKE_IN_RANGE(s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES], 1, 20);
     }
-
+    
     for (int i = 0; i < MAX_KEY; ++i) {
         if (s_settings[i] != new_settings[i]) {
             return 1;
@@ -215,7 +215,6 @@ static void settings_load_persistent() {
     Settings new_settings;
     for (int i = 0; i < MAX_KEY; ++i) {
         new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
-        //APP_LOG(APP_LOG_LEVEL_INFO, "Got %d=%d", i, new_settings[i]);
     }
 
     if (settings_apply(new_settings)) {
