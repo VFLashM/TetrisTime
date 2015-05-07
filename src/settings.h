@@ -86,14 +86,14 @@ typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
 
-static int settings_get_default(SettingsKey key, int last_version) {
+static int settings_get_default(SettingsKey key) {
     switch (key) {
+    case ANIMATE_SECOND_DOT:
+        return 1;
     case DATE_WEEKDAY_FORMAT:
         return DWF_TEXT;
     case NOTIFICATION_DISCONNECTED:
         return NTF_DOUBLE_PULSE;
-    case LARGE_DATE_FONT:
-        return (last_version == 1) ? 1 : 0; // for version 1 large date was the default
     default:
         return 0;
     }
@@ -103,14 +103,7 @@ static int settings_get_default(SettingsKey key, int last_version) {
 
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
-    const int last_version = s_settings[VERSION];
-    for (int i = 0; i < MAX_KEY; ++i) {
-        if (new_settings[i] < 0) {
-            s_settings[i] = settings_get_default(i, last_version);
-        } else {
-            s_settings[i] = new_settings[i];
-        }
-    }
+    memcpy(s_settings, new_settings, sizeof(Settings));
     
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
     s_settings[LIGHT_THEME] %= 2;
@@ -194,7 +187,7 @@ static int settings_apply(const int* new_settings) {
     return 0;
 }
 
-inline static int settings_is_active(Settings* settings, int idx) {
+inline static int settings_is_active(const int* settings, SettingsKey idx) {
     if ((idx > CUSTOM_DATE) && (idx < CUSTOM_DATE_MAX)) {
         if (settings[CUSTOM_DATE]) {
             return 1;
@@ -214,7 +207,7 @@ inline static int settings_is_active(Settings* settings, int idx) {
 
 static void settings_save_persistent() {
     for (int i = 0; i < MAX_KEY; ++i) {
-        if (settings_is_active(&s_settings, i)) {
+        if (settings_is_active(s_settings, i)) {
             persist_write_int(i, s_settings[i]);
         } 
     }
@@ -243,10 +236,10 @@ static void settings_load_persistent() {
     APP_LOG(APP_LOG_LEVEL_INFO, "Reading persistent settings");
     Settings new_settings;
     for (int i = 0; i < MAX_KEY; ++i) {
-        if (settings_is_active(&new_settings, i)) {
-            new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
+        if (settings_is_active(new_settings, i) && persist_exists(i)) {
+            new_settings[i] = persist_read_int(i);
         } else {
-            new_settings[i] = -1;
+            new_settings[i] = settings_get_default(i);
         }
     }
 
