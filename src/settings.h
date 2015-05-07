@@ -86,7 +86,7 @@ typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
 
-static int settings_get_default(SettingsKey key) {
+inline static int settings_get_default(SettingsKey key) {
     switch (key) {
     case ANIMATE_SECOND_DOT:
         return 1;
@@ -103,7 +103,7 @@ static int settings_get_default(SettingsKey key) {
 
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
-    memcpy(s_settings, new_settings, sizeof(Settings));
+    memcpy(&s_settings, &new_settings, sizeof(Settings));
     
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
     s_settings[LIGHT_THEME] %= 2;
@@ -189,23 +189,16 @@ static int settings_apply(const int* new_settings) {
 
 inline static int settings_is_active(const int* settings, SettingsKey idx) {
     if ((idx > CUSTOM_DATE) && (idx < CUSTOM_DATE_MAX)) {
-        if (settings[CUSTOM_DATE]) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return settings[CUSTOM_DATE];
     }
     if ((idx > CUSTOM_ANIMATIONS) && (idx < CUSTOM_ANIMATIONS_MAX)) {
-        if (settings[CUSTOM_ANIMATIONS]) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return settings[CUSTOM_ANIMATIONS];
     }
     return 1;
 }
 
 static void settings_save_persistent() {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Saving persistent settings");
     for (int i = 0; i < MAX_KEY; ++i) {
         if (settings_is_active(s_settings, i)) {
             persist_write_int(i, s_settings[i]);
@@ -238,8 +231,10 @@ static void settings_load_persistent() {
     for (int i = 0; i < MAX_KEY; ++i) {
         if (settings_is_active(new_settings, i) && persist_exists(i)) {
             new_settings[i] = persist_read_int(i);
+            //APP_LOG(APP_LOG_LEVEL_INFO, "Got loaded %d=%d", i, new_settings[i]);
         } else {
             new_settings[i] = settings_get_default(i);
+            //APP_LOG(APP_LOG_LEVEL_INFO, "Got default %d=%d", i, new_settings[i]);
         }
     }
 
