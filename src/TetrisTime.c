@@ -30,6 +30,7 @@ typedef struct {
 } DigitState;
 
 // time state
+static int s_false;
 static int s_show_second_dot = 1;
 static int s_month;
 static int s_day;
@@ -533,11 +534,14 @@ static void on_settings_changed() {
 
 static void in_received_handler(DictionaryIterator* iter, void* context)
 {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "inside receive handler %p", iter);
     settings_read(iter);
     on_settings_changed();
 }
 
 static void main_window_load(Window* window) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "inside main window load %p", window);
+    if (window) { return; }
     s_layer = window_get_root_layer(window);
     layer_set_update_proc(s_layer, layer_draw);
 
@@ -547,7 +551,7 @@ static void main_window_load(Window* window) {
     time(&now);
     struct tm* now_time = localtime(&now);
     tick_handler(now_time, -1);
-
+    
     if (s_settings[SKIP_INITIAL_ANIMATION]) {
         for (int i = 0; i < STATE_COUNT; ++i) {
             // skip vanishing animation
@@ -564,40 +568,23 @@ static void main_window_unload(Window* window) {
 }
   
 static void init() {
-    srand(time(NULL));
-
     app_message_register_inbox_received(in_received_handler);
     app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-    settings_load_persistent();
     
-#if USE_RAW_DIGITS == 1
-    bitmap_check_all();
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
-        DigitDef def;
-        if (!parse_raw_digit(&def, &s_raw_digits[i])) {
-            return;
-        }
-        reorder_digit(&s_digits[i], &def);
-    }
-    /*
-    for (int i = 0; i < DIGIT_COUNT; ++i) {
-        format_digit_def_struct(&s_digits[i]);
-    }
-    */
-#endif
+    if (s_false) { // always false
+        settings_load_persistent();
 
-    for (int i = 0; i < STATE_COUNT; ++i) {
-        s_states[i].next_value = -1;
-        s_states[i].target_value = -1;
-        // it looks better WITH vanishing animation
-        //s_states[i].vanishing_frame = s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * ANIMATION_PERIOD_FRAMES + 1;
+        for (int i = 0; i < STATE_COUNT; ++i) {
+            s_states[i].next_value = -1;
+            s_states[i].target_value = -1;
+        }
+        s_states[4].restricted_spawn_width = 1;
     }
-    s_states[4].restricted_spawn_width = 1;
     
-    // init window
     s_window = window_create();
-    window_set_window_handlers(s_window, (WindowHandlers) { .load = main_window_load, .unload = main_window_unload });
-    window_stack_push(s_window, true);
+    APP_LOG(APP_LOG_LEVEL_ERROR, "just before set handlers %p", s_window);
+    window_set_window_handlers(s_window, (WindowHandlers) { .load=main_window_load });
+    //window_stack_push(s_window, true);
 }
 
 static void deinit() {
@@ -606,6 +593,7 @@ static void deinit() {
 }
 
 int main(void) {
+    s_false = 0;
     init();
     app_event_loop();
     deinit();
