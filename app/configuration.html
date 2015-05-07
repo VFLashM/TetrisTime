@@ -22,7 +22,9 @@
             for (var key in options) {
               var name = key + "_" + options[key];
               $("input:radio[id='"+ name + "']").prop("checked", true)
-              $("input:checkbox[id='"+ key + "']").prop("checked", true)
+              if (Number(options[key]) != 0) {
+                $("input:checkbox[id='"+ key + "']").prop("checked", true)
+              }
               $("input:text[id='"+ key + "']").prop("value", options[key])
             }
           }
