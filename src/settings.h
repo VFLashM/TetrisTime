@@ -201,7 +201,11 @@ static void settings_save_persistent() {
 static void settings_send() {
     APP_LOG(APP_LOG_LEVEL_INFO, "Sending settings");
     DictionaryIterator* it;
-    app_message_outbox_begin(&it);
+    AppMessageResult rc = app_message_outbox_begin(&it);
+    if (rc != APP_MSG_OK) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to open outbox, rc=%d", (int)rc);
+        return;
+    }
 
     for (int i = 0; i < MAX_KEY; ++i) {
         dict_write_int(it, i, &s_settings[i], 4, 1);
