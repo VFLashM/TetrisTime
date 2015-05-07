@@ -199,6 +199,9 @@ static void settings_save_persistent() {
 }
 
 static void settings_send() {
+    // sending settings breaks app_message, disabled until resolved
+    return;
+    
     APP_LOG(APP_LOG_LEVEL_INFO, "Sending settings");
     DictionaryIterator* it;
     AppMessageResult rc = app_message_outbox_begin(&it);
