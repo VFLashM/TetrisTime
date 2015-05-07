@@ -1,51 +1,57 @@
 {
-    "uuid": "5ae98212-a15a-4e5b-989e-e78849c4d3f7",
-    "shortName": "TetrisTime",
-    "longName": "TetrisTime",
-    "capabilities": [ "configurable" ],
-    "companyName": "vflashm",
-    "versionCode": 20,
-    "versionLabel": "2.0",
-    "watchapp": {
-        "watchface": true
-    },
-    "appKeys": {
-        "VERSION": 0,
-        "LIGHT_THEME": 1,
-        "ANIMATE_SECOND_DOT": 2,
-        "DIGITS_MODE": 3,
-        "DATE_MODE": 4,
-        "DATE_MONTH_FORMAT": 5,
-        "DATE_WEEKDAY_FORMAT": 6,
-        "DATE_FIRST_WEEKDAY": 7,
-        "ICON_CONNECTION": 8,
-        "ICON_BATTERY": 9,
-        "NOTIFICATION_DISCONNECTED": 10,
-        "NOTIFICATION_CONNECTED": 11,
-        "SKIP_INITIAL_ANIMATION": 12,
-        "NOTIFICATION_HOURLY": 13,
-        "LARGE_DATE_FONT": 14,
-        "CUSTOM_DATE": 15,
-        "CUSTOM_TIME_OFFSET": 16,
-        "CUSTOM_TIME_DATE_SPACING_1": 17,
-        "CUSTOM_TIME_DATE_SPACING_2": 18,
-        "CUSTOM_DATE_WORD_SPACING": 19,
-        "CUSTOM_DATE_LINE_SPACING": 20,
-        "CUSTOM_ANIMATIONS": 21,
-        "CUSTOM_ANIMATION_TIMEOUT_MS": 22,
-        "CUSTOM_ANIMATION_PERIOD_VIS_FRAMES": 23,
-        "CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES": 24,
-        "CUSTOM_ANIMATION_PERIOD_COUNT": 25,
-        "CUSTOM_ANIMATION_DATE_PERIOD_FRAMES": 26
-    },
-    "resources": {
-        "media": [
-            {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_MENU_ICON",
-                "file": "icon.png"
-            }
-        ]
-    }
+  "uuid": "5ae98212-a15a-4e5b-989e-e78849c4d3f7",
+  "shortName": "TetrisTime",
+  "longName": "TetrisTime",
+  "capabilities": [
+    "configurable"
+  ],
+  "companyName": "vflashm",
+  "versionCode": 20,
+  "versionLabel": "2.0",
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "VERSION": 0,
+    "LIGHT_THEME": 1,
+    "ANIMATE_SECOND_DOT": 2,
+    "DIGITS_MODE": 3,
+    "DATE_MODE": 4,
+    "DATE_MONTH_FORMAT": 5,
+    "DATE_WEEKDAY_FORMAT": 6,
+    "DATE_FIRST_WEEKDAY": 7,
+    "ICON_CONNECTION": 8,
+    "ICON_BATTERY": 9,
+    "NOTIFICATION_DISCONNECTED": 10,
+    "NOTIFICATION_CONNECTED": 11,
+    "SKIP_INITIAL_ANIMATION": 12,
+    "NOTIFICATION_HOURLY": 13,
+    "LARGE_DATE_FONT": 14,
+    "CUSTOM_DATE": 15,
+    "CUSTOM_TIME_OFFSET": 16,
+    "CUSTOM_TIME_DATE_SPACING_1": 17,
+    "CUSTOM_TIME_DATE_SPACING_2": 18,
+    "CUSTOM_DATE_WORD_SPACING": 19,
+    "CUSTOM_DATE_LINE_SPACING": 20,
+    "CUSTOM_ANIMATIONS": 21,
+    "CUSTOM_ANIMATION_TIMEOUT_MS": 22,
+    "CUSTOM_ANIMATION_PERIOD_VIS_FRAMES": 23,
+    "CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES": 24,
+    "CUSTOM_ANIMATION_PERIOD_COUNT": 25,
+    "CUSTOM_ANIMATION_DATE_PERIOD_FRAMES": 26
+  },
+  "resources": {
+    "media": [
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "IMAGE_MENU_ICON",
+        "file": "icon.png"
+      }
+    ]
+  },
+  "targetPlatforms": [
+    "aplite"
+  ],
+  "sdkVersion": "3"
 }
