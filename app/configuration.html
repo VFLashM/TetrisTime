@@ -113,11 +113,11 @@
         </fieldset>
         <fieldset data-role="controlgroup">
           <legend><h3>Date second line format</h3></legend>
-          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_0" value="0" checked="checked" type="radio">
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_0" value="0" type="radio">
           <label for="DATE_WEEKDAY_FORMAT_0">Marked weekday</label>
           <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_1" value="1" type="radio">
           <label for="DATE_WEEKDAY_FORMAT_1">Initial weekday</label>
-          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_2" value="2" type="radio">
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_2" value="2" checked="checked" type="radio">
           <label for="DATE_WEEKDAY_FORMAT_2">Text weekday</label>
           <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_3" value="3" type="radio">
           <label for="DATE_WEEKDAY_FORMAT_3">Empty</label>
@@ -136,18 +136,18 @@
           <input id="ICON_BATTERY" type="checkbox">
           <label for="ICON_BATTERY">Show battery icon when battery is low or charging</label>
         </fieldset>
-        <fieldset data-role="controlgroup" data-type="horizontal">
+        <fieldset data-role="controlgroup" data-type="vertical">
           <legend><h3>Disconnection notification vibration</h3></legend>
-          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_0" value="0" checked="checked" type="radio">
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_0" value="0" type="radio">
           <label for="NOTIFICATION_DISCONNECTED_0">None</label>
           <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_1" value="1" type="radio">
           <label for="NOTIFICATION_DISCONNECTED_1">Short</label>
           <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_2" value="2" type="radio">
           <label for="NOTIFICATION_DISCONNECTED_2">Long</label>
-          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_3" value="3" type="radio">
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_3" value="3" checked="checked" type="radio">
           <label for="NOTIFICATION_DISCONNECTED_3">Double</label>
         </fieldset>
-        <fieldset data-role="controlgroup" data-type="horizontal">
+        <fieldset data-role="controlgroup" data-type="vertical">
           <legend><h3>Reconnection notification vibration</h3></legend>
           <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_0" value="0" checked="checked" type="radio">
           <label for="NOTIFICATION_CONNECTED_0">None</label>
@@ -158,7 +158,7 @@
           <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_3" value="3" type="radio">
           <label for="NOTIFICATION_CONNECTED_3">Double</label>
         </fieldset>
-        <fieldset id="dest" data-role="controlgroup" data-type="horizontal">
+        <fieldset id="dest" data-role="controlgroup" data-type="vertical">
           <legend><h3>Hourly notification vibration</h3></legend>
           <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_0" value="0" checked="checked" type="radio">
           <label for="NOTIFICATION_HOURLY_0">None</label>
@@ -202,8 +202,8 @@
           <label for="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES">Date appearance animation step frames:</label>
           <input id="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES" type="text" size="1" value="4">
         </fieldset>
+        -->
       </div>
-      -->
       
       <div>
         <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
