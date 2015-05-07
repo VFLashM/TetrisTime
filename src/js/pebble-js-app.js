@@ -34,7 +34,11 @@ Pebble.addEventListener("webviewclosed",
         var config = JSON.parse(e.response);
         
         window.localStorage.options = JSON.stringify(config)
-        Pebble.sendAppMessage(config);
+        Pebble.sendAppMessage(config,
+                              function(e) {},
+                              function(e) {
+                                  console.log('Error sending message to watch: ' + JSON.stringify(e));
+                              });
     }
 );
 
