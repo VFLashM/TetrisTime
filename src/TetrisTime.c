@@ -436,7 +436,7 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
         layer_mark_dirty(s_layer);
     }
 
-    if (units_changed & HOUR_UNIT) {
+    if ((units_changed & HOUR_UNIT) && (units_changed != (TimeUnits)(-1))) {
         notify(s_settings[NOTIFICATION_HOURLY]);
     }
 }
