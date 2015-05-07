@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
     <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
-    <script type="text/javascript">
-      var options = {};
-      
+    <script type="text/javascript">  
       function parse_options() {
+        var options = {};
+      
         if (location.search) {
           var prefix = "?options="
           if (location.search.indexOf(prefix) == 0) {
@@ -34,6 +34,8 @@
         $(".advanced_checkbox").each(function (index) { this.onclick(); } )
       }
       function save() {
+        var options = {};
+      
         $("input:radio:checked").each(function (index) {
           options[this.name] = Number(this.value);
         })
@@ -171,7 +173,6 @@
           <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_3" value="3" type="radio">
           <label for="NOTIFICATION_HOURLY_3">Double</label>
         </fieldset>
-        <!--
         <fieldset data-role="controlgroup">
           <legend><h3>Advanced settings</h3></legend>
           <input id="CUSTOM_DATE" type="checkbox" onclick="set_visible('custom_date', this.checked)" class="advanced_checkbox">
@@ -204,7 +205,6 @@
           <label for="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES">Date appearance animation step frames:</label>
           <input id="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES" type="text" size="1" value="4">
         </fieldset>
-        -->
       </div>
       
       <div>
