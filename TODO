@@ -5,6 +5,7 @@ customizable offsets
 
 optimizations:
 
+do something about persist_* functions performance
 not updating date
 baked tetriminos
 tracking rendering
@@ -26,7 +27,6 @@ bugs:
 
 date always reanimated on settings change
 initial animation bugs: vanishing animation bugohack for digits, no delay for date
-hourly notification vibrating at opening
 
 future:
 
