@@ -31,15 +31,17 @@ typedef enum {
     CUSTOM_TIME_DATE_SPACING_2,
     CUSTOM_DATE_WORD_SPACING,
     CUSTOM_DATE_LINE_SPACING,
+    CUSTOM_DATE_MAX,
 
-    CUSTOM_ANIMATIONS,
+    CUSTOM_ANIMATIONS = CUSTOM_DATE_MAX,
     CUSTOM_ANIMATION_TIMEOUT_MS,
     CUSTOM_ANIMATION_PERIOD_VIS_FRAMES,
     CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES,
     CUSTOM_ANIMATION_PERIOD_COUNT,
     CUSTOM_ANIMATION_DATE_PERIOD_FRAMES,
+    CUSTOM_ANIMATIONS_MAX,
     
-    MAX_KEY,
+    MAX_KEY = CUSTOM_ANIMATIONS_MAX,
 } SettingsKey;
 
 typedef enum {
@@ -192,9 +194,29 @@ static int settings_apply(const int* new_settings) {
     return 0;
 }
 
+inline static int settings_is_active(Settings* settings, int idx) {
+    if ((idx > CUSTOM_DATE) && (idx < CUSTOM_DATE_MAX)) {
+        if (settings[CUSTOM_DATE]) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    if ((idx > CUSTOM_ANIMATIONS) && (idx < CUSTOM_ANIMATIONS_MAX)) {
+        if (settings[CUSTOM_ANIMATIONS]) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 static void settings_save_persistent() {
     for (int i = 0; i < MAX_KEY; ++i) {
-        persist_write_int(i, s_settings[i]);
+        if (settings_is_active(&s_settings, i)) {
+            persist_write_int(i, s_settings[i]);
+        } 
     }
 }
 
@@ -221,7 +243,11 @@ static void settings_load_persistent() {
     APP_LOG(APP_LOG_LEVEL_INFO, "Reading persistent settings");
     Settings new_settings;
     for (int i = 0; i < MAX_KEY; ++i) {
-        new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
+        if (settings_is_active(&new_settings, i)) {
+            new_settings[i] = persist_exists(i) ? persist_read_int(i) : -1;
+        } else {
+            new_settings[i] = -1;
+        }
     }
 
     if (settings_apply(new_settings)) {
