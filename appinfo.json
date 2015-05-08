@@ -51,7 +51,8 @@
     ]
   },
   "targetPlatforms": [
-    "aplite"
+    "aplite",
+    "basalt"
   ],
   "sdkVersion": "3"
 }

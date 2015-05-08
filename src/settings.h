@@ -103,7 +103,7 @@ inline static int settings_get_default(SettingsKey key) {
 
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
-    memcpy(&s_settings, &new_settings, sizeof(Settings));
+    memcpy(&s_settings, new_settings, sizeof(Settings));
     
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
     s_settings[LIGHT_THEME] %= 2;
@@ -257,6 +257,7 @@ static void settings_read(DictionaryIterator* iter)
             case TUPLE_UINT:
             case TUPLE_INT:
                 new_settings[t->key] = t->value->int8;
+                //APP_LOG(APP_LOG_LEVEL_INFO, "Read %d=%d", (int)t->key, new_settings[t->key]);
                 break;
             default:
                 APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected key type: %d:%d", (int)t->key, (int)t->type);

@@ -12,17 +12,18 @@ typedef enum {
     COLOR_MAX
 } PaletteColor;
 
-GColor s_palette[COLOR_MAX] = {
-    GColorClear,
-    GColorBlack,
-    GColorWhite,
-};
-
+GColor s_palette[COLOR_MAX];
 
 static int s_field_inited;
 static PaletteColor s_field_bg_color;
 static PaletteColor s_last_field[FIELD_HEIGHT][FIELD_WIDTH];
 static PaletteColor s_next_field[FIELD_HEIGHT][FIELD_WIDTH];
+
+static void init_palette() {
+    s_palette[COLOR_TRANSPARENT] = GColorClear;
+    s_palette[COLOR_BLACK] = GColorBlack;
+    s_palette[COLOR_WHITE] = GColorWhite;
+}
 
 static void field_reset(PaletteColor background) {
     s_field_bg_color = background;
@@ -89,6 +90,7 @@ static void field_flush(Layer* layer, GContext* ctx) {
     GRect rect;
     
     if (!s_field_inited) {
+        init_palette();
         rect = layer_get_bounds(layer);
         graphics_context_set_fill_color(ctx, s_palette[s_field_bg_color]);
         graphics_fill_rect(ctx, rect, 0, GCornerNone);
