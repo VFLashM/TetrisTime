@@ -22,7 +22,7 @@ typedef struct {
 
 static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
     { 'i', 4, 2, {
-            COLOR_TO_BYTE(GColorTiffanyBlue, GColorWhite),
+            COLOR_TO_BYTE(GColorCyan, GColorWhite),
             COLOR_TO_BYTE(GColorCyan, GColorWhite),
         }, {
             {{0,0,0,0},
@@ -43,7 +43,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,1,0,0}}
         }},
     { 'j', 3, 4, {
-            COLOR_TO_BYTE(GColorPictonBlue, GColorWhite),
+            COLOR_TO_BYTE(GColorBlueMoon, GColorWhite),
             COLOR_TO_BYTE(GColorBlueMoon, GColorWhite),
         }, {
             {{1,0,0,0},
@@ -64,7 +64,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,0,0,0}}
         }},
     { 'l', 3, 4, {
-            COLOR_TO_BYTE(GColorChromeYellow, GColorWhite),
+            COLOR_TO_BYTE(GColorOrange, GColorWhite),
             COLOR_TO_BYTE(GColorOrange, GColorWhite),
         }, {
             {{0,0,1,0},
@@ -85,8 +85,8 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,0,0,0}}
         }},
     { 'o', 2, 1, {
-            COLOR_TO_BYTE(GColorYellow, GColorWhite),
-            COLOR_TO_BYTE(GColorIcterine, GColorWhite),
+            COLOR_TO_BYTE(GColorLimerick, GColorWhite),
+            COLOR_TO_BYTE(GColorLimerick, GColorWhite),
         }, {
             {{1,1,0,0},
              {1,1,0,0},
@@ -106,8 +106,8 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
              {0,0,0,0}}
         }},
     { 's', 3, 2, {
-            COLOR_TO_BYTE(GColorMalachite, GColorWhite),
-            COLOR_TO_BYTE(GColorIslamicGreen, GColorWhite),
+            COLOR_TO_BYTE(GColorGreen, GColorWhite),
+            COLOR_TO_BYTE(GColorGreen, GColorWhite),
         }, {
             {{0,1,1,0},
              {1,1,0,0},
@@ -128,7 +128,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
         }},
     { 't', 3, 4, {
             COLOR_TO_BYTE(GColorPurple, GColorWhite),
-            COLOR_TO_BYTE(GColorImperialPurple, GColorWhite),
+            COLOR_TO_BYTE(GColorPurple, GColorWhite),
         }, {
             {{0,1,0,0},
              {1,1,1,0},
@@ -149,7 +149,7 @@ static const TetriminoDef s_tetrimino_defs[TETRIMINO_COUNT] = {
         }},
     { 'z', 3, 2, {
             COLOR_TO_BYTE(GColorRed, GColorWhite),
-            COLOR_TO_BYTE(GColorFolly, GColorWhite),
+            COLOR_TO_BYTE(GColorRed, GColorWhite),
         }, {
             {{1,1,0,0},
              {0,1,1,0},
