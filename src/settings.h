@@ -103,7 +103,7 @@ inline static int settings_get_default(SettingsKey key) {
 
 // returns true if resulting settings differ from input settings
 static int settings_apply(const int* new_settings) {
-    memcpy(&s_settings, &new_settings, sizeof(Settings));
+    memcpy(&s_settings, new_settings, sizeof(Settings));
     
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
     s_settings[LIGHT_THEME] %= 2;
