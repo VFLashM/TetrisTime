@@ -36,8 +36,8 @@ static int s_day;
 static int s_weekday;
 
 // color state
-static PaletteColor s_bg_color;
-static PaletteColor s_fg_color;
+static GColor s_bg_color;
+static GColor s_fg_color;
 
 // pebbele infrastructure
 static int s_animating;
@@ -144,13 +144,13 @@ static void state_step(DigitState* state) {
     }
 }
 
-static void draw_weekday_line(int height, PaletteColor color) {
+static void draw_weekday_line(int height, GColor color) {
     const Bitmap* weekdays = s_settings[LARGE_DATE_FONT] ? s_large_weekdays : s_small_weekdays;
     const Bitmap* bmp = &weekdays[s_weekday];
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
 }
 
-static void draw_marked_weekday_line(int height, PaletteColor color, int use_letter) {
+static void draw_marked_weekday_line(int height, GColor color, int use_letter) {
     const Bitmap* marked_weekdays = s_settings[LARGE_DATE_FONT] ? s_large_marked_weekdays : s_small_marked_weekdays;
     
     const int first_weekday = s_settings[DATE_FIRST_WEEKDAY];
@@ -168,7 +168,7 @@ static void draw_marked_weekday_line(int height, PaletteColor color, int use_let
     }
 }
 
-static void draw_date_line(int height, PaletteColor color) {
+static void draw_date_line(int height, GColor color) {
     const DateMonthFormat dmf = s_settings[DATE_MONTH_FORMAT];
 
     const Bitmap* months = s_settings[LARGE_DATE_FONT] ? s_large_months : s_small_months;
@@ -234,7 +234,7 @@ static void draw_date() {
     const int date_period_frames = s_settings[CUSTOM_ANIMATION_DATE_PERIOD_FRAMES];
     const int split_height = get_final_date_split_height() + (s_date_frame + date_period_frames - 1) / date_period_frames;
 
-    PaletteColor date_color;
+    GColor date_color;
     if (dm == DM_INVERTED) {
         date_color = s_bg_color;
         for (int j = split_height; j < FIELD_HEIGHT; ++j) {
@@ -489,11 +489,11 @@ static void on_settings_changed() {
     }
 
     if (s_settings[LIGHT_THEME]) {
-        s_bg_color = COLOR_WHITE;
-        s_fg_color = COLOR_BLACK;
+        s_bg_color = GColorWhite;
+        s_fg_color = GColorBlack;
     } else {
-        s_bg_color = COLOR_BLACK;
-        s_fg_color = COLOR_WHITE;
+        s_bg_color = GColorBlack;
+        s_fg_color = GColorWhite;
     }
 
     if (!s_settings[SKIP_INITIAL_ANIMATION]) {

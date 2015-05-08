@@ -679,7 +679,7 @@ static const Bitmap s_battery_charging = {
 };
 
 
-static void draw_bitmap(const Bitmap* bmp, int x, int y, PaletteColor color) {
+static void draw_bitmap(const Bitmap* bmp, int x, int y, GColor color) {
     int yoffset = 0;
     for (int j = 0; j < bmp->height; ++j) {
         for (int i = 0; i < bmp->width; ++i) {
@@ -691,7 +691,7 @@ static void draw_bitmap(const Bitmap* bmp, int x, int y, PaletteColor color) {
     }
 }
 
-static void draw_bitmap_move(int* xptr, const Bitmap* bmp, int y, PaletteColor color, int spacing) {
+static void draw_bitmap_move(int* xptr, const Bitmap* bmp, int y, GColor color, int spacing) {
     draw_bitmap(bmp, *xptr, y, color);
     *xptr += bmp->width + spacing;
 }
