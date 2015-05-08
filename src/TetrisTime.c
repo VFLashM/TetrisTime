@@ -276,7 +276,7 @@ static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y) {
             if ((*tm)[mask_y][mask_x]) {
                 const int x = tp->x + mask_x + offset_x;
                 const int y = tp->y + mask_y + offset_y;
-                field_draw(x, y, s_fg_color);
+                field_draw(x, y, BYTE_TO_COLOR(td->color[tp->color_idx]));
             }
         }
     }
