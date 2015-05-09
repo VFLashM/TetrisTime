@@ -13,40 +13,40 @@
 #define DYNAMIC_ASSEMBLY 0
 
 typedef struct {
-    uint8_t offset_x;
-    uint8_t offset_y;
+    int8_t offset_x;
+    int8_t offset_y;
     
-    char falling;
+    bool falling;
 
-    uint8_t target_value;
-    uint8_t next_value;
+    int8_t target_value;
+    int8_t next_value;
     DigitDef target;
     DigitDef current;
 
-    uint8_t action_height;
-    uint8_t vanishing_frame;
+    int8_t action_height;
+    int8_t vanishing_frame;
 
-    char restricted_spawn_width;
+    bool restricted_spawn_width;
 } DigitState;
 
 // time state
-static int s_show_second_dot = 1;
-static int s_month;
-static int s_day;
-static int s_weekday;
+static bool s_show_second_dot = true;
+static uint8_t s_month;
+static uint8_t s_day;
+static uint8_t s_weekday;
 
 // color state
 static GColor s_bg_color;
 static GColor s_fg_color;
 
 // pebbele infrastructure
-static int s_animating;
+static bool s_animating;
 static Window* s_window;
 static Layer* s_layer;
 
 // digit states
 static DigitState s_states[STATE_COUNT];
-static int s_date_frame;
+static int8_t s_date_frame;
 
 static void state_step(DigitState* state) {
     if (!state->falling) {
@@ -61,7 +61,7 @@ static void state_step(DigitState* state) {
                     state->target = s_digits[state->target_value];
                 }
                 state->current.size = 0;
-                state->falling = 1;
+                state->falling = true;
                 state->vanishing_frame = 0;
             } else {
                 state->vanishing_frame += 1;
@@ -139,7 +139,7 @@ static void state_step(DigitState* state) {
                    &state->target.tetriminos[state->target.size-1],
                    sizeof(TetriminoPos)) == 0)
         {
-            state->falling = 0;
+            state->falling = false;
         }
     }
 }
@@ -150,7 +150,7 @@ static void draw_weekday_line(int height, GColor color) {
     draw_bitmap(bmp, (FIELD_WIDTH - bmp->width + 1) / 2, height, color);
 }
 
-static void draw_marked_weekday_line(int height, GColor color, int use_letter) {
+static void draw_marked_weekday_line(int height, GColor color, bool use_letter) {
     const Bitmap* marked_weekdays = s_settings[LARGE_DATE_FONT] ? s_large_marked_weekdays : s_small_marked_weekdays;
     
     const int first_weekday = s_settings[DATE_FIRST_WEEKDAY];
@@ -313,7 +313,7 @@ static void layer_draw(Layer* layer, GContext* ctx) {
         }
     }
     if (s_settings[ICON_BATTERY]) {
-        const Bitmap* bmp = 0;
+        const Bitmap* bmp = NULL;
         BatteryChargeState charge_state = battery_state_service_peek();
         if (charge_state.is_charging) {
             bmp = &s_battery_charging;
@@ -347,7 +347,7 @@ static void process_animation(void* data) {
     st += 1;
     */
     
-    s_animating = 1;
+    s_animating = true;
     if (s_date_frame) {
         s_date_frame -= 1;
     }
@@ -358,7 +358,7 @@ static void process_animation(void* data) {
     if (is_animating()) {
         app_timer_register(s_settings[CUSTOM_ANIMATION_TIMEOUT_MS], process_animation, NULL);
     } else {
-        s_animating = 0;
+        s_animating = false;
     }
 }
 
@@ -411,13 +411,13 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
         digit_values[0] = DIGIT_COUNT;
     }
     
-    int changed = 0;
+    bool changed = false;
     for (int i = 0; i < STATE_COUNT; ++i) {
         const int value = digit_values[i];
         if (s_states[i].next_value != value) {
             s_states[i].next_value = value;
             //APP_LOG(APP_LOG_LEVEL_INFO, "Digit %d scheduled to be %d", i, value);
-            changed = 1;
+            changed = true;
         }
     }
 
@@ -506,7 +506,7 @@ static void on_settings_changed() {
     if (s_settings[ANIMATE_SECOND_DOT]) {
         tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
     } else {
-        s_show_second_dot = 1;
+        s_show_second_dot = true;
         tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     }
 
@@ -560,7 +560,7 @@ static void main_window_load(Window* window) {
 }
 
 static void main_window_unload(Window* window) {
-    s_layer = 0;
+    s_layer = NULL;
 }
   
 static void init() {
@@ -592,7 +592,7 @@ static void init() {
         // it looks better WITH vanishing animation
         //s_states[i].vanishing_frame = s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * ANIMATION_PERIOD_FRAMES + 1;
     }
-    s_states[4].restricted_spawn_width = 1;
+    s_states[4].restricted_spawn_width = true;
     
     // init window
     s_window = window_create();
@@ -602,7 +602,7 @@ static void init() {
 
 static void deinit() {
     window_destroy(s_window);
-    s_window = 0;
+    s_window = NULL;
 }
 
 int main(void) {

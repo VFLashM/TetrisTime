@@ -5,8 +5,8 @@
 #define BMP_SMALL_DIGIT_WIDTH 3
 
 typedef struct {
-    int width;
-    int height;
+    uint8_t width;
+    uint8_t height;
     char* data;
 } Bitmap;
 
