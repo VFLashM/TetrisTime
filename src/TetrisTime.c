@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "assert.h"
 #include "digit.h"
 #include "field.h"
 #include "settings.h"
@@ -567,7 +568,9 @@ static void init() {
     srand(time(NULL));
 
     app_message_register_inbox_received(in_received_handler);
-    app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+    AppMessageResult rc = app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+    ASSERT(rc == APP_MSG_OK);
+    
     settings_load_persistent();
     
 #if USE_RAW_DIGITS == 1
@@ -596,6 +599,7 @@ static void init() {
     
     // init window
     s_window = window_create();
+    ASSERT(s_window);
     window_set_window_handlers(s_window, (WindowHandlers) { .load = main_window_load, .unload = main_window_unload });
     window_stack_push(s_window, true);
 }

@@ -222,7 +222,11 @@ static void settings_send() {
         dict_write_int(it, i, &s_settings[i], 4, 1);
     }
  
-    app_message_outbox_send();
+    rc = app_message_outbox_send();
+    if (rc != APP_MSG_OK) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to send outbox, rc=%d", (int)rc);
+        return;
+    }
 }
 
 static void settings_load_persistent() {
