@@ -9,6 +9,8 @@
 // real const
 #define STATE_COUNT 5
 #define ANIMATION_SPACING_Y (TETRIMINO_MASK_SIZE + 1)
+#define MAX_TETRIMINO_AGE_STEPS 3
+#define MAX_TETRIMINO_AGE (MAX_TETRIMINO_AGE_STEPS * s_settings[CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES])
 
 // debug settings
 #define DYNAMIC_ASSEMBLY 0
@@ -23,6 +25,7 @@ typedef struct {
     int8_t next_value;
     DigitDef target;
     DigitDef current;
+    int8_t current_tetrimino_age[DIGIT_MAX_TETRIMINOS];
 
     int8_t action_height;
     int8_t vanishing_frame;
@@ -91,6 +94,10 @@ static void state_step(DigitState* state) {
 
         if (current_pos->y < target_pos->y) {
             current_pos->y += 1;
+        } else {
+            if (state->current_tetrimino_age[i] < MAX_TETRIMINO_AGE) {
+                state->current_tetrimino_age[i] += 1;
+            }
         }
 
         if (current_pos->y >= state->action_height) {
@@ -104,7 +111,6 @@ static void state_step(DigitState* state) {
                 current_pos->rotation = (current_pos->rotation + 1) % 4;
             }
         }
-        
      
         last_y = current_pos->y;
     }
@@ -130,15 +136,17 @@ static void state_step(DigitState* state) {
             const int rotation_unique = rand() % td->unique_shapes;
             current_pos->rotation = (target_pos->rotation - rotation_unique + 4) % 4;
             state->action_height = start_y;
+            state->current_tetrimino_age[state->current.size] = 0;
             state->current.size += 1;
         }
     }
 
     if (state->current.size == state->target.size) {
         if (state->current.size == 0 ||
-            memcmp(&state->current.tetriminos[state->current.size-1],
-                   &state->target.tetriminos[state->target.size-1],
-                   sizeof(TetriminoPos)) == 0)
+            ((memcmp(&state->current.tetriminos[state->current.size-1],
+                    &state->target.tetriminos[state->target.size-1],
+                    sizeof(TetriminoPos)) == 0) &&
+            (state->current_tetrimino_age[state->current.size-1] >= MAX_TETRIMINO_AGE)))
         {
             state->falling = false;
         }
@@ -268,24 +276,38 @@ static void draw_date() {
     }
 }
 
-static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y) {
+static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y, int age) {
     const TetriminoDef* td = get_tetrimino_def(tp->letter); 
     const TetriminoMask* tm = &td->rotations[tp->rotation];
+
+    GColor color = GColorWhite;
+    
+    #ifdef PBL_COLOR
+    if (age < MAX_TETRIMINO_AGE) {
+        color = BYTE_TO_COLOR(td->color);
+        const int age_step = age / s_settings[CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES];
+        for (int i = 0; i < age_step; ++i) {
+            if (color.r < 3) color.r += 1;
+            if (color.g < 3) color.g += 1;
+            if (color.b < 3) color.b += 1;
+        }
+    }
+    #endif
 
     for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
         for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
             if ((*tm)[mask_y][mask_x]) {
                 const int x = tp->x + mask_x + offset_x;
                 const int y = tp->y + mask_y + offset_y;
-                field_draw(x, y, BYTE_TO_COLOR(td->color));
+                field_draw(x, y, color);
             }
         }
     }
 }
 
-static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y) {
+static void draw_digit_def(const DigitDef* def, int offset_x, int offset_y, const int8_t* ages) {
     for (int i = 0; i < def->size; ++i) {
-        draw_tetrimino(&def->tetriminos[i], offset_x, offset_y);
+        draw_tetrimino(&def->tetriminos[i], offset_x, offset_y, ages[i]);
     }
 }
 
@@ -297,7 +319,7 @@ static void draw_digit_state(const DigitState* state) {
             return;
         }
     }
-    draw_digit_def(&state->current, state->offset_x, state->offset_y);
+    draw_digit_def(&state->current, state->offset_x, state->offset_y, state->current_tetrimino_age);
 }
 
 static void layer_draw(Layer* layer, GContext* ctx) {
