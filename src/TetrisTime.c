@@ -569,7 +569,7 @@ static void init() {
 
     app_message_register_inbox_received(in_received_handler);
     AppMessageResult rc = app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-    ASSERT(rc == APP_MSG_OK);
+    ASSERT2(rc == APP_MSG_OK, "app_message_open => %d", (int)rc);
     
     settings_load_persistent();
     
