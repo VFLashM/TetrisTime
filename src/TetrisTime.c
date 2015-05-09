@@ -276,6 +276,16 @@ static void draw_date() {
     }
 }
 
+static inline int _min(int a, int b) {
+    return a < b ? a : b;
+}
+
+static inline int _step(int current, int target, int max_step) {
+    if (current > target) return current - _min(max_step, current-target);
+    if (current < target) return current + _min(max_step, target-current);
+    return current;
+}
+
 static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y, int age) {
     const TetriminoDef* td = get_tetrimino_def(tp->letter); 
     const TetriminoMask* tm = &td->rotations[tp->rotation];
@@ -286,13 +296,11 @@ static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y, i
     if (age < MAX_TETRIMINO_AGE) {
         color = BYTE_TO_COLOR(td->color);
         const int age_step = age / s_settings[CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES];
-        for (int i = 0; i < age_step; ++i) {
-            if      (color.r < s_fg_color.r) color.r += 1;
-            else if (color.r > s_fg_color.r) color.r -= 1;
-            if      (color.g < s_fg_color.g) color.g += 1;
-            else if (color.g > s_fg_color.g) color.g -= 1;
-            if      (color.b < s_fg_color.b) color.b += 1;
-            else if (color.b > s_fg_color.b) color.b -= 1;
+
+        if (age_step) {
+            color.r = _step(color.r, s_fg_color.r, age_step);
+            color.g = _step(color.g, s_fg_color.g, age_step);
+            color.b = _step(color.b, s_fg_color.b, age_step);
         }
     }
     #endif
@@ -581,6 +589,9 @@ static void main_window_load(Window* window) {
             s_states[i].vanishing_frame = s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * animation_period_frames + 1;
             state_step(&s_states[i]);
             s_states[i].current = s_states[i].target;
+            for (int j = 0; j < s_states[i].current.size; ++j) {
+                s_states[i].current_tetrimino_age[j] = MAX_TETRIMINO_AGE;
+            }
         }
     }
 }
