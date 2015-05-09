@@ -10,14 +10,14 @@
   
 typedef struct {
     char letter;
-    int color_idx;
-    int rotation;
-    int x;
-    int y;
+    uint8_t color_idx;
+    uint8_t rotation;
+    uint8_t x;
+    uint8_t y;
 } TetriminoPos;
   
 typedef struct {
-    int size;
+    uint8_t size;
     TetriminoPos tetriminos[DIGIT_MAX_TETRIMINOS];
 } DigitDef;
 

@@ -13,20 +13,20 @@
 #define DYNAMIC_ASSEMBLY 0
 
 typedef struct {
-    int offset_x;
-    int offset_y;
+    uint8_t offset_x;
+    uint8_t offset_y;
     
     char falling;
 
-    int target_value;
-    int next_value;
+    uint8_t target_value;
+    uint8_t next_value;
     DigitDef target;
     DigitDef current;
 
-    int action_height;
-    int vanishing_frame;
+    uint8_t action_height;
+    uint8_t vanishing_frame;
 
-    int restricted_spawn_width;
+    char restricted_spawn_width;
 } DigitState;
 
 // time state
@@ -276,7 +276,7 @@ static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y) {
             if ((*tm)[mask_y][mask_x]) {
                 const int x = tp->x + mask_x + offset_x;
                 const int y = tp->y + mask_y + offset_y;
-                field_draw(x, y, BYTE_TO_COLOR(td->color[tp->color_idx]));
+                field_draw(x, y, BYTE_TO_COLOR(td->color));
             }
         }
     }
