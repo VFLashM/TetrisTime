@@ -16,3 +16,7 @@ static inline _nop() {}
 #endif
 
 #define ASSERT(condition) ASSERT2(condition, #condition)
+
+#define ARRAY_SIZE(a) ((sizeof(a) / sizeof(*(a))) / (size_t)(!(sizeof(a) % sizeof(*(a)))))
+
+#define STATIC_ASSERT(condition) _Static_assert(condition, #condition)

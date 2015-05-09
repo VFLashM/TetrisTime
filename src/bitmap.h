@@ -10,7 +10,7 @@ typedef struct {
     char* data;
 } Bitmap;
 
-static const Bitmap s_small_months[12] = {
+static const Bitmap s_small_months[] = {
     {
         12, BMP_SMALL_HEIGHT,
         "  # ### #  #"
@@ -108,8 +108,9 @@ static const Bitmap s_small_months[12] = {
         "##  ### ###"
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_small_months) == 12);
 
-static const Bitmap s_bmp_small_digits[10] = {
+static const Bitmap s_bmp_small_digits[] = {
     {
         BMP_SMALL_DIGIT_WIDTH, BMP_SMALL_HEIGHT,
         "###"
@@ -191,8 +192,9 @@ static const Bitmap s_bmp_small_digits[10] = {
         "###"
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_bmp_small_digits) == 10);
 
-static const Bitmap s_small_marked_weekdays[9] = {
+static const Bitmap s_small_marked_weekdays[] = {
     { 5, 5,
       " ### "
       " #   "
@@ -257,8 +259,9 @@ static const Bitmap s_small_marked_weekdays[9] = {
       " #### "
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_small_marked_weekdays) == 9);
 
-static const Bitmap s_small_weekdays[7] = {
+static const Bitmap s_small_weekdays[] = {
     {
         12, BMP_SMALL_HEIGHT,
         "### # # #  #"
@@ -316,8 +319,9 @@ static const Bitmap s_small_weekdays[7] = {
         "### # #  # "
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_small_weekdays) == 7);
 
-static const Bitmap s_large_months[12] = {
+static const Bitmap s_large_months[] = {
     {
         14, BMP_LARGE_HEIGHT,
         "   #          "
@@ -427,8 +431,9 @@ static const Bitmap s_large_months[12] = {
         "###  ###  ## "
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_large_months) == 12);
 
-static const Bitmap s_bmp_large_digits[10] = {
+static const Bitmap s_bmp_large_digits[] = {
     {
         BMP_LARGE_DIGIT_WIDTH, BMP_LARGE_HEIGHT,
         " ## "
@@ -520,6 +525,7 @@ static const Bitmap s_bmp_large_digits[10] = {
         " ## "
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_bmp_large_digits) == 10);
 
 static const Bitmap s_large_marked_weekdays[9] = {
     { 6, 5,
@@ -586,8 +592,9 @@ static const Bitmap s_large_marked_weekdays[9] = {
       " #### "
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_large_marked_weekdays) == 9);
 
-static const Bitmap s_large_weekdays[7] = {
+static const Bitmap s_large_weekdays[] = {
     {
         14, BMP_LARGE_HEIGHT,
         " ##           "
@@ -652,6 +659,7 @@ static const Bitmap s_large_weekdays[7] = {
         " ##  #  #  # "
     },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_large_weekdays) == 7);
 
 static const Bitmap s_bluetooth = {
     4, 5,
@@ -702,7 +710,7 @@ static void bitmap_check(const Bitmap* bmp, const char* label) {
     }
 }
 
-#define BITMAP_CHECK_ARRAY(array) for (unsigned int i = 0; i < (sizeof(array)/sizeof(array[0])); ++i) { bitmap_check(&array[i], #array); }
+#define BITMAP_CHECK_ARRAY(array) for (unsigned int i = 0; i < ARRAY_SIZE(array); ++i) { bitmap_check(&array[i], #array); }
 
 static void bitmap_check_all() {
     APP_LOG(APP_LOG_LEVEL_INFO, "Bitmap check");

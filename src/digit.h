@@ -120,7 +120,7 @@ static void reorder_digit(DigitDef* dst, const DigitDef* src) {
 
 #if USE_RAW_DIGITS == 1
   
-static RawDigit s_raw_digits[DIGIT_COUNT] = {
+static RawDigit s_raw_digits[] = {
     {"tzzjjj",
      "ttzzsj",
      "tT  ss",
@@ -242,6 +242,7 @@ static RawDigit s_raw_digits[DIGIT_COUNT] = {
      "      ",
      "      "},
 };
+STATIC_ASSERT(ARRAY_SIZE(s_digits) == DIGIT_COUNT);
 
 static int match_mask(RawDigit* raw, const TetriminoMask* mask, int mask_size, int pos_x, int pos_y, char letter, int clear) {
     for (int mask_y = 0; mask_y < mask_size; ++mask_y) {
@@ -351,7 +352,7 @@ static DigitDef s_digits[DIGIT_COUNT+1];
 
 #else
 
-static DigitDef s_digits[DIGIT_COUNT+1] = {
+static DigitDef s_digits[] = {
     { 12,
       {
           {'i', 1, -2, 6},
@@ -503,6 +504,7 @@ static DigitDef s_digits[DIGIT_COUNT+1] = {
     },
     { 0 },
 };
+STATIC_ASSERT(ARRAY_SIZE(s_digits) == (DIGIT_COUNT+1));
 
 #endif
 
