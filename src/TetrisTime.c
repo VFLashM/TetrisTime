@@ -280,16 +280,19 @@ static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y, i
     const TetriminoDef* td = get_tetrimino_def(tp->letter); 
     const TetriminoMask* tm = &td->rotations[tp->rotation];
 
-    GColor color = GColorWhite;
+    GColor color = s_fg_color;
     
     #ifdef PBL_COLOR
     if (age < MAX_TETRIMINO_AGE) {
         color = BYTE_TO_COLOR(td->color);
         const int age_step = age / s_settings[CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES];
         for (int i = 0; i < age_step; ++i) {
-            if (color.r < 3) color.r += 1;
-            if (color.g < 3) color.g += 1;
-            if (color.b < 3) color.b += 1;
+            if      (color.r < s_fg_color.r) color.r += 1;
+            else if (color.r > s_fg_color.r) color.r -= 1;
+            if      (color.g < s_fg_color.g) color.g += 1;
+            else if (color.g > s_fg_color.g) color.g -= 1;
+            if      (color.b < s_fg_color.b) color.b += 1;
+            else if (color.b > s_fg_color.b) color.b -= 1;
         }
     }
     #endif
