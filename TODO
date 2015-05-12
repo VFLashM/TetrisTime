@@ -1,12 +1,12 @@
 todo:
 
-shake to skip animation
-customizable offsets
+shake to skip animation?
 
 optimizations:
 
 do something about persist_* functions performance
-not updating date
+do not render date
+special case for seconds rendering
 baked tetriminos
 tracking rendering
 
@@ -18,10 +18,6 @@ am/pm
 battery charging animation
 battery 20/10?
 animation on date change
-configurable animations (timeout/period ticks/periods)
-configurable styles (default/staight/curved)?
-configurable dynamic assembly?
-
 
 bugs:
 
@@ -30,5 +26,5 @@ initial animation bugs: vanishing animation bugohack for digits, no delay for da
 
 future:
 
-colors
+permanent colors
 date area assembly?
