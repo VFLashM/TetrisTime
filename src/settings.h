@@ -157,6 +157,10 @@ static int settings_apply(const int* new_settings) {
         s_settings[CUSTOM_TIME_DATE_SPACING_2] = 2;
         s_settings[CUSTOM_DATE_WORD_SPACING] = 3;
         s_settings[CUSTOM_DATE_LINE_SPACING] = 2;
+        if (s_settings[DATE_WEEKDAY_FORMAT] == DWF_NO_WEEKDAY) {
+            s_settings[CUSTOM_TIME_DATE_SPACING_1] += 1;
+            s_settings[CUSTOM_TIME_DATE_SPACING_2] += 1;
+        }
     } else {
         MAKE_IN_RANGE(s_settings[CUSTOM_TIME_OFFSET], 0, 20);
         MAKE_IN_RANGE(s_settings[CUSTOM_TIME_DATE_SPACING_1], 0, 20);
