@@ -17,6 +17,7 @@
 
 typedef struct {
     int8_t offset_x;
+    int8_t next_offset_x;
     int8_t offset_y;
     
     bool falling;
@@ -54,11 +55,12 @@ static int8_t s_date_frame;
 
 static void state_step(DigitState* state) {
     if (!state->falling) {
-        if (state->next_value != state->target_value) {
+        if (state->next_value != state->target_value || state->next_offset_x != state->offset_x) {
             const int animation_period_frames = s_settings[CUSTOM_ANIMATION_PERIOD_VIS_FRAMES] + s_settings[CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES];
             if (state->vanishing_frame > s_settings[CUSTOM_ANIMATION_PERIOD_COUNT] * animation_period_frames) {
                 //APP_LOG(APP_LOG_LEVEL_INFO, "Digit target changed to %d", state->next_value);
                 state->target_value = state->next_value;
+                state->offset_x = state->next_offset_x;
                 if (DYNAMIC_ASSEMBLY) {
                     reorder_digit(&state->target, &s_digits[state->target_value]);
                 } else {
@@ -424,54 +426,94 @@ static void bt_handler(bool connected) {
 }
 
 static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
-    const int clock24 = clock_is_24h_style();
-    
-    int digit_values[STATE_COUNT];
-    int hour = tick_time->tm_hour;
-    
-    if (!clock24) {
-        hour = hour % 12;
-        if (hour == 0) {
-            hour = 12;
+    if (units_changed & DAY_UNIT) {
+        s_month = tick_time->tm_mon;
+        s_day = tick_time->tm_mday;
+        s_weekday = tick_time->tm_wday;
+        //s_weekday = (tick_time->tm_sec / 2) % 7;
+        //s_month = ((tick_time->tm_sec + 1) / 2) % 12;
+    }
+
+    if (units_changed & HOUR_UNIT) {
+        if (units_changed != (TimeUnits)(-1)) {
+            notify(s_settings[NOTIFICATION_HOURLY]);
         }
     }
-    digit_values[0] = hour / 10;
-    digit_values[1] = hour % 10;
-    digit_values[2] = tick_time->tm_min / 10;
-    digit_values[3] = tick_time->tm_min % 10;
-    digit_values[4] = 10;
-
-    if (!clock24 && digit_values[0] == 0) {
-        digit_values[0] = DIGIT_COUNT;
-    }
     
-    bool changed = false;
-    for (int i = 0; i < STATE_COUNT; ++i) {
-        const int value = digit_values[i];
-        if (s_states[i].next_value != value) {
-            s_states[i].next_value = value;
-            //APP_LOG(APP_LOG_LEVEL_INFO, "Digit %d scheduled to be %d", i, value);
-            changed = true;
+    if (units_changed & MINUTE_UNIT) {
+        const int clock24 = clock_is_24h_style();
+    
+        int digit_values[STATE_COUNT];
+        int digit_offsets[STATE_COUNT];
+        int hour = tick_time->tm_hour;
+    
+        if (!clock24) {
+            hour = hour % 12;
+            if (hour == 0) {
+                hour = 12;
+            }
+        }
+    
+        digit_values[0] = hour / 10;
+        digit_values[1] = hour % 10;
+        digit_values[2] = tick_time->tm_min / 10;
+        digit_values[3] = tick_time->tm_min % 10;
+        digit_values[4] = 10;
+
+        if (!clock24) {
+            if (digit_values[0] == 0) {
+                digit_values[0] = DIGIT_COUNT;
+
+                digit_offsets[0] = 0;
+                digit_offsets[1] = 5;
+                digit_offsets[2] = 17;
+                digit_offsets[3] = 25;
+                digit_offsets[4] = 11;
+
+                /*
+                  if (digit_values[1] == 1) {
+                  for (int i = 0; i < STATE_COUNT; ++i) {
+                  s_states[i].next_offset_x -= 1;
+                  }
+                  }
+                */
+            } else {
+                digit_offsets[0] = 0;
+                digit_offsets[1] = 8;
+                digit_offsets[2] = 20;
+                digit_offsets[3] = 28;
+                digit_offsets[4] = 14;
+            }
+        } else {
+            digit_offsets[0] = 2;
+            digit_offsets[1] = 10;
+            digit_offsets[2] = 20;
+            digit_offsets[3] = 28;
+            digit_offsets[4] = 15;
+        }
+    
+        bool changed = false;
+        for (int i = 0; i < STATE_COUNT; ++i) {
+            const int value = digit_values[i];
+            const int offset = digit_offsets[i];
+            if (s_states[i].next_value != value || s_states[i].next_offset_x != offset) {
+                s_states[i].next_value = value;
+                s_states[i].next_offset_x = offset;
+                //APP_LOG(APP_LOG_LEVEL_INFO, "Digit %d scheduled to be %d", i, value);
+                changed = true;
+            }
+        }
+
+        if (changed && !s_animating) {
+            process_animation(NULL);
         }
     }
 
-    s_month = tick_time->tm_mon;
-    s_day = tick_time->tm_mday;
-    s_weekday = tick_time->tm_wday;
-    //s_weekday = (tick_time->tm_sec / 2) % 7;
-    //s_month = ((tick_time->tm_sec + 1) / 2) % 12;
-
-    if (changed && !s_animating) {
-        process_animation(NULL);
-    }
-
-    if (s_settings[ANIMATE_SECOND_DOT]) {
-        s_show_second_dot = tick_time->tm_sec % 2;
-        layer_mark_dirty(s_layer);
-    }
-
-    if ((units_changed & HOUR_UNIT) && (units_changed != (TimeUnits)(-1))) {
-        notify(s_settings[NOTIFICATION_HOURLY]);
+    if (units_changed & SECOND_UNIT) {
+        if (s_settings[ANIMATE_SECOND_DOT]) {
+            s_show_second_dot = tick_time->tm_sec % 2;
+            layer_mark_dirty(s_layer);
+        }
     }
 }
 
@@ -482,38 +524,6 @@ static void battery_handler(BatteryChargeState charge_state) {
 }
 
 static void on_settings_changed() {
-    int digits_mode = s_settings[DIGITS_MODE];
-    if (digits_mode == DM_ASYMMETRIC && clock_is_24h_style()) {
-        digits_mode = DM_DENSE;
-    }
-
-    switch (digits_mode) {
-    case DM_ASYMMETRIC:
-        s_states[0].offset_x = 0;
-        s_states[1].offset_x = 8;
-        s_states[2].offset_x = 20;
-        s_states[3].offset_x = 28;
-        s_states[4].offset_x = 14;
-        break;
-    default:
-        APP_LOG(APP_LOG_LEVEL_INFO, "Unsupported digit mode");
-        // no break
-    case DM_DENSE:
-        s_states[0].offset_x = 2;
-        s_states[1].offset_x = 10;
-        s_states[2].offset_x = 20;
-        s_states[3].offset_x = 28;
-        s_states[4].offset_x = 15;
-        break;
-    case DM_SPARSE:
-        s_states[0].offset_x = 1;
-        s_states[1].offset_x = 9;
-        s_states[2].offset_x = 21;
-        s_states[3].offset_x = 29;
-        s_states[4].offset_x = 15;
-        break;
-    }
-
     int offset_y = (FIELD_HEIGHT - DIGIT_HEIGHT) / 2;
     if (s_settings[DATE_MODE] != DM_NONE) {
         offset_y -= s_settings[CUSTOM_TIME_OFFSET];

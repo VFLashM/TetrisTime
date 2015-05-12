@@ -7,7 +7,7 @@ typedef enum {
     VERSION = 0,
     LIGHT_THEME,
     ANIMATE_SECOND_DOT,
-    DIGITS_MODE,
+    _UNUSED0,
 
     DATE_MODE,
     DATE_MONTH_FORMAT,
@@ -109,7 +109,6 @@ static int settings_apply(const int* new_settings) {
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
     s_settings[LIGHT_THEME] %= 2;
     s_settings[ANIMATE_SECOND_DOT] %= 2;
-    s_settings[DIGITS_MODE] %= DIM_MAX;
     s_settings[DATE_MODE] %= DM_MAX;
     s_settings[DATE_MONTH_FORMAT] %= DMF_MAX;
     s_settings[DATE_WEEKDAY_FORMAT] %= DWF_MAX;
@@ -190,14 +189,17 @@ static int settings_apply(const int* new_settings) {
     return 0;
 }
 
-inline static int settings_is_active(const int* settings, SettingsKey idx) {
+inline static bool settings_is_active(const int* settings, SettingsKey idx) {
+    if (idx == _UNUSED0) {
+        return false;
+    }
     if ((idx > CUSTOM_DATE) && (idx < CUSTOM_DATE_MAX)) {
         return settings[CUSTOM_DATE];
     }
     if ((idx > CUSTOM_ANIMATIONS) && (idx < CUSTOM_ANIMATIONS_MAX)) {
         return settings[CUSTOM_ANIMATIONS];
     }
-    return 1;
+    return false;
 }
 
 static void settings_save_persistent() {
