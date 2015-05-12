@@ -1,6 +1,11 @@
 Pebble.addEventListener("ready",
     function(e) {
         console.log("js app inited");
+        Pebble.sendAppMessage({},
+                              function(e) {},
+                              function(e) {
+                                  console.log('Error sending message to watch: ' + JSON.stringify(e));
+                              });
     }
 );
 

@@ -86,6 +86,7 @@ typedef enum {
 typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
+static bool s_need_sync;
 
 inline static int settings_get_default(SettingsKey key) {
     switch (key) {
@@ -102,8 +103,21 @@ inline static int settings_get_default(SettingsKey key) {
 
 #define MAKE_IN_RANGE(v, min, max) v = (v < min ? min : (v > max ? max : v))
 
+inline static bool settings_is_active(const int* settings, SettingsKey idx) {
+    if (idx == _UNUSED0) {
+        return false;
+    }
+    if ((idx > CUSTOM_DATE) && (idx < CUSTOM_DATE_MAX)) {
+        return settings[CUSTOM_DATE];
+    }
+    if ((idx > CUSTOM_ANIMATIONS) && (idx < CUSTOM_ANIMATIONS_MAX)) {
+        return settings[CUSTOM_ANIMATIONS];
+    }
+    return true;
+}
+
 // returns true if resulting settings differ from input settings
-static int settings_apply(const int* new_settings) {
+static bool settings_apply(const int* new_settings) {
     memcpy(&s_settings, new_settings, sizeof(Settings));
     
     s_settings[VERSION] = SETTINGS_VERSION_VALUE;
@@ -186,22 +200,9 @@ static int settings_apply(const int* new_settings) {
     }
     
     for (int i = 0; i < MAX_KEY; ++i) {
-        if (s_settings[i] != new_settings[i]) {
-            return 1;
+        if (settings_is_active(s_settings, i) && (s_settings[i] != new_settings[i])) {
+            return true;
         }
-    }
-    return 0;
-}
-
-inline static bool settings_is_active(const int* settings, SettingsKey idx) {
-    if (idx == _UNUSED0) {
-        return false;
-    }
-    if ((idx > CUSTOM_DATE) && (idx < CUSTOM_DATE_MAX)) {
-        return settings[CUSTOM_DATE];
-    }
-    if ((idx > CUSTOM_ANIMATIONS) && (idx < CUSTOM_ANIMATIONS_MAX)) {
-        return settings[CUSTOM_ANIMATIONS];
     }
     return false;
 }
@@ -216,9 +217,6 @@ static void settings_save_persistent() {
 }
 
 static void settings_send() {
-    // sending settings breaks app_message, disabled until resolved
-    return;
-    
     APP_LOG(APP_LOG_LEVEL_INFO, "Sending settings");
     DictionaryIterator* it;
     AppMessageResult rc = app_message_outbox_begin(&it);
@@ -228,7 +226,10 @@ static void settings_send() {
     }
 
     for (int i = 0; i < MAX_KEY; ++i) {
-        dict_write_int(it, i, &s_settings[i], 4, 1);
+        DictionaryResult drc = dict_write_int(it, i, &s_settings[i], 4, 1);
+        if (drc != DICT_OK) {
+            APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to write outgoing message, rc=%d", (int)drc);
+        }
     }
  
     rc = app_message_outbox_send();
@@ -253,17 +254,26 @@ static void settings_load_persistent() {
 
     if (settings_apply(new_settings)) {
         settings_save_persistent();
-        settings_send();
+        s_need_sync = true;
     }
 }
 
 static void settings_read(DictionaryIterator* iter) 
 {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Reading js settings");
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reading js settings"); 
+    const Tuple* t = dict_read_first(iter);
+    
+    if (!t) { // startup message
+        if (s_need_sync) {
+            settings_send();
+            s_need_sync = false;
+        }
+        return;
+    }
+    
     Settings new_settings;
     memcpy(&new_settings, &s_settings, sizeof(Settings));
     
-    const Tuple* t = dict_read_first(iter);
     while (t) {
         if (t->key < MAX_KEY) {
             switch (t->type) {
@@ -281,8 +291,7 @@ static void settings_read(DictionaryIterator* iter)
         t = dict_read_next(iter);
     }
 
-    if (settings_apply(new_settings)) {
-        settings_send();
-    }
+    settings_apply(new_settings);
+    settings_send();
     settings_save_persistent();
 }
