@@ -20,6 +20,7 @@ animation on date change
 
 bugs:
 
+date flickers in first few frames
 date always reanimated on settings change
 initial animation bugs: vanishing animation bugohack for digits, no delay for date
 
