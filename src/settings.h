@@ -86,7 +86,6 @@ typedef enum {
 typedef int Settings[MAX_KEY];
 
 static Settings s_settings;
-static bool s_need_sync;
 
 inline static int settings_get_default(SettingsKey key) {
     switch (key) {
@@ -254,22 +253,19 @@ static void settings_load_persistent() {
 
     if (settings_apply(new_settings)) {
         settings_save_persistent();
-        s_need_sync = true;
     }
 }
 
 static void settings_read(DictionaryIterator* iter) 
 {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Reading js settings"); 
     const Tuple* t = dict_read_first(iter);
     
     if (!t) { // startup message
-        if (s_need_sync) {
-            settings_send();
-            s_need_sync = false;
-        }
+        APP_LOG(APP_LOG_LEVEL_INFO, "Got options request from js"); 
+        settings_send();
         return;
     }
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reading js settings"); 
     
     Settings new_settings;
     memcpy(&new_settings, &s_settings, sizeof(Settings));
