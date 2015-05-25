@@ -48,6 +48,7 @@ static GColor s_fg_color;
 static bool s_animating;
 static Window* s_window;
 static Layer* s_layer;
+static bool s_second_draw_hack;
 
 // digit states
 static DigitState s_states[STATE_COUNT];
@@ -335,7 +336,30 @@ static void draw_digit_state(const DigitState* state) {
     draw_digit_def(&state->current, state->offset_x, state->offset_y, state->current_tetrimino_age);
 }
 
+static void draw_digit_state_directy(Layer* layer, GContext* ctx, const DigitState* state, GColor color) {
+    for (int t = 0; t < state->current.size; ++t) {
+        const TetriminoPos* tp = &state->current.tetriminos[t];
+        const TetriminoDef* td = get_tetrimino_def(tp->letter);
+        const TetriminoMask* tm = &td->rotations[tp->rotation];
+        for (int mask_y = 0; mask_y < TETRIMINO_MASK_SIZE; ++mask_y) {
+            for (int mask_x = 0; mask_x < TETRIMINO_MASK_SIZE; ++mask_x) {
+                if ((*tm)[mask_y][mask_x]) {
+                    const int x = tp->x + mask_x + state->offset_x;
+                    const int y = tp->y + mask_y + state->offset_y;
+                    field_direct_draw(layer, ctx, x, y, color);
+                }
+            }
+        }
+    }
+}
+
 static void layer_draw(Layer* layer, GContext* ctx) {
+    if (s_second_draw_hack) {
+        GColor second_color = s_show_second_dot ? s_fg_color : s_bg_color;
+        draw_digit_state_directy(layer, ctx, &s_states[4], second_color);
+        s_second_draw_hack = false;
+        return;
+    }
     for (int i = 0; i < 4; ++i) {
         draw_digit_state(&s_states[i]);
     }
@@ -512,6 +536,7 @@ static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
     if (units_changed & SECOND_UNIT) {
         if (s_settings[ANIMATE_SECOND_DOT]) {
             s_show_second_dot = tick_time->tm_sec % 2;
+            s_second_draw_hack = !s_animating;
             layer_mark_dirty(s_layer);
         }
     }

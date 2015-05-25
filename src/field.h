@@ -73,6 +73,17 @@ static void log_field_state() {
 }
 */
 
+static void field_direct_draw(Layer* layer, GContext* ctx, int x, int y, GColor color) {
+    GRect rect;
+    rect.size.h = FIELD_CELL_SIZE;
+    rect.size.w = FIELD_CELL_SIZE;
+    rect.origin.x = FIELD_OFFSET_X + x * (FIELD_CELL_SIZE + FIELD_CELL_SPACING);
+    rect.origin.y = FIELD_OFFSET_Y + y * (FIELD_CELL_SIZE + FIELD_CELL_SPACING);
+    graphics_context_set_fill_color(ctx, color);
+    graphics_fill_rect(ctx, rect, 0, GCornerNone);
+    s_last_field[y][x] = color;
+}
+
 static void field_flush(Layer* layer, GContext* ctx) {
     GRect rect;
     

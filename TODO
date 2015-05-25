@@ -6,7 +6,6 @@ optimizations:
 
 do something about persist_* functions performance
 do not render date
-special case for seconds rendering
 baked tetriminos
 tracking rendering
 
