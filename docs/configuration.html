@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <!-- I'm obviously not a web programmer =/ -->
+  <head>
+    <title>Configuration</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+    <script type="text/javascript">  
+      function parse_options() {
+        var options = {};
+      
+        if (location.search) {
+          var prefix = "?options="
+          if (location.search.indexOf(prefix) == 0) {
+            var json_str = unescape(location.search.substring(prefix.length));
+            console.log("Got options: " + json_str);
+            options = JSON.parse(json_str);
+
+            for (var key in options) {
+              var name = key + "_" + options[key];
+              $("input:radio[id='"+ name + "']").prop("checked", true)
+              if (Number(options[key]) != 0) {
+                $("input:checkbox[id='"+ key + "']").prop("checked", true)
+              }
+              $("input:text[id='"+ key + "']").prop("value", options[key])
+            }
+          }
+        }
+        $("input:radio").checkboxradio("refresh");
+        $("input:checkbox").checkboxradio("refresh");
+        $(".advanced_checkbox").each(function (index) { this.onclick(); } )
+      }
+      function save() {
+        var options = {};
+      
+        $("input:radio:checked").each(function (index) {
+          options[this.name] = Number(this.value);
+        })
+        $("input:checkbox").each(function (index) {
+          options[this.id] = Number(this.checked);
+        })
+        $("input:text").each(function (index) {
+          if ($(this).is(":visible")) {
+            if ($.isNumeric(this.value)) {
+              options[this.id] = Number(this.value);
+            }
+          } 
+        })
+        console.log("Save: " + JSON.stringify(options));
+        document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
+      }
+      function cancel() {
+        console.log("Cancel");
+        document.location = "pebblejs://close";
+      }
+      function set_visible(target, value) {
+        console.log("Making " + target + " visible=" + value)
+        if (value) {
+          $("." + target).show(500)
+        } else {
+          $("." + target).hide(500)
+        }
+      }   
+    </script>
+  </head>
+  <body onload="parse_options()">
+    <div style="margin:5px">
+      <h2 style="text-align:center">Configuration</h2>
+      <div class="ui-field-contain">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+          <legend><h3>Theme</h3></legend>
+          <input name="LIGHT_THEME" id="LIGHT_THEME_0" value="0" checked="checked" type="radio">
+          <label for="LIGHT_THEME_0">Dark theme</label>
+          <input name="LIGHT_THEME" id="LIGHT_THEME_1" value="1" type="radio">
+          <label for="LIGHT_THEME_1">Light theme</label>
+        </fieldset>
+        <!--
+        <fieldset data-role="controlgroup">
+          <legend><h3>Digits style</h3></legend>
+          <input name="DIGITS_MODE" id="DIGITS_MODE_0" value="0" checked="checked" type="radio">
+          <label for="DIGITS_MODE_0">Default: asymmetric for 12h clock, compact for 24h clock</label>
+          <input name="DIGITS_MODE" id="DIGITS_MODE_1" value="1" type="radio">
+          <label for="DIGITS_MODE_1">Compact digits</label>
+          <input name="DIGITS_MODE" id="DIGITS_MODE_2" value="2" type="radio">
+          <label for="DIGITS_MODE_2">Sparse digits</label>
+        </fieldset>
+        -->
+        <fieldset data-role="controlgroup">
+          <legend><h3>Animation settings</h3></legend>
+          <input id="ANIMATE_SECOND_DOT" type="checkbox" checked="checked">
+          <label for="ANIMATE_SECOND_DOT">Animate seconds colon</label>
+          <input id="SKIP_INITIAL_ANIMATION" type="checkbox">
+          <label for="SKIP_INITIAL_ANIMATION">Skip initial animation</label>
+          <input id="LARGE_DATE_FONT" type="checkbox">
+          <label for="LARGE_DATE_FONT">Use large font for date</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Date mode</h3></legend>
+          <input name="DATE_MODE" id="DATE_MODE_0" value="0" checked="checked" type="radio">
+          <label for="DATE_MODE_0">Inverted date</label>
+          <input name="DATE_MODE" id="DATE_MODE_1" value="1" type="radio">
+          <label for="DATE_MODE_1">Same color date</label>
+          <input name="DATE_MODE" id="DATE_MODE_2" value="2" type="radio">
+          <label for="DATE_MODE_2">No date</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Date first line format</h3></legend>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_0" value="0" checked="checked" type="radio">
+          <label for="DATE_MONTH_FORMAT_0">Month and date</label>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_1" value="1" type="radio">
+          <label for="DATE_MONTH_FORMAT_1">Date and month</label>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_2" value="2" type="radio">
+          <label for="DATE_MONTH_FORMAT_2">Weekday and date</label>
+          <input name="DATE_MONTH_FORMAT" id="DATE_MONTH_FORMAT_3" value="3" type="radio">
+          <label for="DATE_MONTH_FORMAT_3">Date and weekday</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Date second line format</h3></legend>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_0" value="0" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_0">Marked weekday</label>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_1" value="1" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_1">Initial weekday</label>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_2" value="2" checked="checked" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_2">Text weekday</label>
+          <input name="DATE_WEEKDAY_FORMAT" id="DATE_WEEKDAY_FORMAT_3" value="3" type="radio">
+          <label for="DATE_WEEKDAY_FORMAT_3">Empty</label>
+        </fieldset>
+        <fieldset data-role="controlgroup" data-type="horizontal">
+          <legend><h3>First weekday</h3></legend>
+          <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_0" value="0" checked="checked" type="radio">
+          <label for="DATE_FIRST_WEEKDAY_0">Sunday first</label>
+          <input name="DATE_FIRST_WEEKDAY" id="DATE_FIRST_WEEKDAY_1" value="1" type="radio">
+          <label for="DATE_FIRST_WEEKDAY_1">Monday first</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Icons</h3></legend>
+          <input id="ICON_CONNECTION" type="checkbox">
+          <label for="ICON_CONNECTION">Show bluetooth icon when there is no connection</label>
+          <input id="ICON_BATTERY" type="checkbox">
+          <label for="ICON_BATTERY">Show battery icon when battery is low or charging</label>
+        </fieldset>
+        <fieldset data-role="controlgroup" data-type="vertical">
+          <legend><h3>Disconnection notification vibration</h3></legend>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_0" value="0" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_0">None</label>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_1" value="1" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_1">Short</label>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_2" value="2" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_2">Long</label>
+          <input name="NOTIFICATION_DISCONNECTED" id="NOTIFICATION_DISCONNECTED_3" value="3" checked="checked" type="radio">
+          <label for="NOTIFICATION_DISCONNECTED_3">Double</label>
+        </fieldset>
+        <fieldset data-role="controlgroup" data-type="vertical">
+          <legend><h3>Reconnection notification vibration</h3></legend>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_0" value="0" checked="checked" type="radio">
+          <label for="NOTIFICATION_CONNECTED_0">None</label>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_1" value="1" type="radio">
+          <label for="NOTIFICATION_CONNECTED_1">Short</label>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_2" value="2" type="radio">
+          <label for="NOTIFICATION_CONNECTED_2">Long</label>
+          <input name="NOTIFICATION_CONNECTED" id="NOTIFICATION_CONNECTED_3" value="3" type="radio">
+          <label for="NOTIFICATION_CONNECTED_3">Double</label>
+        </fieldset>
+        <fieldset id="dest" data-role="controlgroup" data-type="vertical">
+          <legend><h3>Hourly notification vibration</h3></legend>
+          <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_0" value="0" checked="checked" type="radio">
+          <label for="NOTIFICATION_HOURLY_0">None</label>
+          <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_1" value="1" type="radio">
+          <label for="NOTIFICATION_HOURLY_1">Short</label>
+          <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_2" value="2" type="radio">
+          <label for="NOTIFICATION_HOURLY_2">Long</label>
+          <input name="NOTIFICATION_HOURLY" id="NOTIFICATION_HOURLY_3" value="3" type="radio">
+          <label for="NOTIFICATION_HOURLY_3">Double</label>
+        </fieldset>
+        <fieldset data-role="controlgroup">
+          <legend><h3>Advanced settings</h3></legend>
+          <input id="CUSTOM_DATE" type="checkbox" onclick="set_visible('custom_date', this.checked)" class="advanced_checkbox">
+          <label for="CUSTOM_DATE">Custom date offsets</label>
+          
+          <input id="CUSTOM_ANIMATIONS" type="checkbox" onclick="set_visible('custom_animations', this.checked)"  class="advanced_checkbox">
+          <label for="CUSTOM_ANIMATIONS">Custom animation settings</label>
+        </fieldset>
+        <fieldset data-role="controlgroup" class="custom_date">
+          <label for="CUSTOM_TIME_OFFSET">Vertical time offset:</label>
+          <input id="CUSTOM_TIME_OFFSET" type="text" size="1" value="2">
+          <label for="CUSTOM_TIME_DATE_SPACING_1">Spacing between time and date/time split</label>
+          <input id="CUSTOM_TIME_DATE_SPACING_1" type="text" size="1" value="2">
+          <label for="CUSTOM_TIME_DATE_SPACING_2">Spacing between date and date/time split</label>
+          <input id="CUSTOM_TIME_DATE_SPACING_2" type="text" size="1" value="2">
+          <label for="CUSTOM_DATE_WORD_SPACING">Date word spacing</label>
+          <input id="CUSTOM_DATE_WORD_SPACING" type="text" size="1" value="3">
+          <label for="CUSTOM_DATE_LINE_SPACING">Date line spacing</label>
+          <input id="CUSTOM_DATE_LINE_SPACING" type="text" size="1" value="2">
+        </fieldset>
+        <fieldset data-role="controlgroup" class="custom_animations">
+          <label for="CUSTOM_ANIMATION_TIMEOUT_MS">Animation timeout in ms:</label>
+          <input id="CUSTOM_ANIMATION_TIMEOUT_MS" type="text" size="4" value="100">
+          <label for="CUSTOM_ANIMATION_PERIOD_VIS_FRAMES">Vanishing animation inivisble frames:</label>
+          <input id="CUSTOM_ANIMATION_PERIOD_VIS_FRAMES" type="text" size="2" value="2">
+          <label for="CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES">Vanishing animation visible frames:</label>
+          <input id="CUSTOM_ANIMATION_PERIOD_INVIS_FRAMES" type="text" size="2" value="1">
+          <label for="CUSTOM_ANIMATION_PERIOD_COUNT">Vanishing animation period count:</label>
+          <input id="CUSTOM_ANIMATION_PERIOD_COUNT" type="text" size="2" value="3">
+          <label for="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES">Date appearance animation step frames:</label>
+          <input id="CUSTOM_ANIMATION_DATE_PERIOD_FRAMES" type="text" size="2" value="4">
+          <label for="CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES">Tetrimino fade step frames:</label>
+          <input id="CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES" type="text" size="2" value="5">
+        </fieldset>
+      </div>
+      
+      <div>
+        <div class="ui-block-b" style="float:left;margin:10"><button type="submit" data-theme="a" id="save" onclick="save()">Save</button></div>
+        <div class="ui-block-a" style="float:right;margin:10"><button type="submit" data-theme="d" id="cancel" onclick="cancel()">Cancel</button></div>
+      </div>
+    </div>
+  </body>
+</html>
