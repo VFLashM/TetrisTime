@@ -50,11 +50,12 @@
           } 
         })
         console.log("Save: " + JSON.stringify(options));
-        document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
+        var return_to = getQueryParam("return_to", "pebblejs://close#");
+        document.location = return_to + encodeURIComponent(JSON.stringify(options));
       }
       function cancel() {
         console.log("Cancel");
-        document.location = "pebblejs://close";
+        document.location = getQueryParam("return_to", "pebblejs://close#");;
       }
       function set_visible(target, value) {
         console.log("Making " + target + " visible=" + value)
