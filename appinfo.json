@@ -6,8 +6,8 @@
     "configurable"
   ],
   "companyName": "vflashm",
-  "versionCode": 31,
-  "versionLabel": "3.1",
+  "versionCode": 32,
+  "versionLabel": "3.2",
   "watchapp": {
     "watchface": true
   },
