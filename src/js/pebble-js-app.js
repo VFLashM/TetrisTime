@@ -36,7 +36,7 @@ Pebble.addEventListener("showConfiguration",
 Pebble.addEventListener("webviewclosed",
     function(e) {
         console.log('Got response: ' + e.response);
-        var config = JSON.parse(e.response);
+        var config = JSON.parse(decodeURIComponent(e.response));
         
         window.localStorage.options = JSON.stringify(config);
         Pebble.sendAppMessage(config,
