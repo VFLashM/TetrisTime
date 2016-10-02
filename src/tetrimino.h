@@ -3,9 +3,7 @@
 
 typedef uint8_t TetriminoMask[TETRIMINO_MASK_SIZE][TETRIMINO_MASK_SIZE];
 
-
-#define COLOR_TO_BYTE(basalt, aplite) (basalt ## ARGB8)
-#define BYTE_TO_COLOR(val) ( (GColor) { .argb = (val) } )
+#define COLOR_TO_BYTE(basalt, aplite) PBL_IF_COLOR_ELSE(basalt ## ARGB8, aplite ## ARGB8)
 
 typedef struct {
     char letter;

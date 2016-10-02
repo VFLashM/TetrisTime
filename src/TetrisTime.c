@@ -297,7 +297,7 @@ static void draw_tetrimino(const TetriminoPos* tp, int offset_x, int offset_y, i
     
     #ifdef PBL_COLOR
     if (age < MAX_TETRIMINO_AGE) {
-        color = BYTE_TO_COLOR(td->color);
+        color.argb = td->color;
         const int age_step = age / s_settings[CUSTOM_ANIMATION_TETRIMINO_AGE_STEP_FRAMES];
 
         if (age_step) {
