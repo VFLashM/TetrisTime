@@ -20,7 +20,7 @@ Pebble.addEventListener("appmessage",
 
 Pebble.addEventListener("showConfiguration",
     function(e) {
-        var url = 'http://vflashm.github.io/TetrisTime/';
+        var url = 'http://vflashm.github.io/TetrisTime/configuration.html';
         var options = window.localStorage.getItem("options");
         if (options !== null) {
             options = escape(options);
