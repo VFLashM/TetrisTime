@@ -639,7 +639,8 @@ static void init() {
     srand(time(NULL));
 
     app_message_register_inbox_received(in_received_handler);
-    AppMessageResult rc = app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+    const size_t buffer_size = 1 + MAX_KEY * (8 + sizeof(int));
+    AppMessageResult rc = app_message_open(buffer_size, buffer_size);
     ASSERT2(rc == APP_MSG_OK, "app_message_open => %d", (int)rc);
     
     settings_load_persistent();
